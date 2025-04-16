@@ -169,7 +169,7 @@ epub-optimizer/
 
 ### Getting Help
 
-If you encounter issues not covered in this documentation, please [open an issue](https://github.com/yourusername/epub-optimizer/issues) on the project repository.
+If you encounter issues not covered in this documentation, please [open an issue](https://github.com/kiki-le-singe/epub-optimizer/issues) on the project repository.
 
 ## Dependencies
 
