@@ -6,12 +6,13 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 
 - HTML/XHTML minification (removes whitespace, comments, and unnecessary code)
 - CSS optimization (minifies and combines rules)
-- Image compression (JPEG and PNG optimization without significant quality loss)
+- Image compression (JPEG, PNG, WebP, GIF, AVIF, SVG optimization without significant quality loss)
 - Archive recompression (more efficient zip packaging)
 - EPUB validation against the EPUB specification
 - XML/XHTML validation fixing (automatically repairs common validation issues)
 - Command-line interface with customizable options
 - File size comparison reporting
+- Modern code linting and formatting with Biome
 
 ## Requirements
 
@@ -66,14 +67,20 @@ When using the default configuration:
 
 ### Scripts
 
-The project includes the following scripts:
+The project includes the following scripts (see also the `package.json`):
 
-- `optimize` - Only optimize the EPUB file (compression)
-- `fix` - Fix XML validation issues in the optimized EPUB
-- `validate` - Validate the EPUB using EPUBCheck
-- `build` - Run all processes (optimize, fix, validate)
-- `build-clean` - Run all processes and then clean temporary files
-- `cleanup` - Remove temporary files
+| Script          | Description                                                                     |
+| --------------- | ------------------------------------------------------------------------------- |
+| `optimize`      | Optimize the EPUB file (compression, minification, image optimization)          |
+| `optimize:keep` | Optimize and keep temp files for debugging                                      |
+| `fix`           | Run all fix scripts on extracted files (fixes span tags, XML, and XHTML issues) |
+| `create-epub`   | Repackage EPUB from temp directory                                              |
+| `validate`      | Validate EPUB with EPUBCheck                                                    |
+| `build`         | Full pipeline: optimize, fix, repackage, validate                               |
+| `cleanup`       | Remove temp and intermediate files                                              |
+| `build-clean`   | Full pipeline and cleanup                                                       |
+| `lint`          | Lint code with Biome                                                            |
+| `format`        | Format code with Biome                                                          |
 
 ### Basic Usage
 
@@ -85,9 +92,9 @@ pnpm build
 pnpm build-clean
 
 # Individual steps
-pnpm optimize  # Only compress the EPUB file
-pnpm fix       # Fix XML validation issues
-pnpm validate  # Check EPUB validity
+pnpm optimize        # Only compress the EPUB file
+pnpm fix             # Fix XML/XHTML validation issues
+pnpm validate        # Check EPUB validity
 ```
 
 ### Advanced Usage Examples
@@ -100,7 +107,7 @@ pnpm optimize -- -i mynovel.epub -o mynovel_optimized.epub
 pnpm optimize -- --jpg-quality 85
 
 # Keep temporary files for inspection
-pnpm optimize -- --keep-temp
+pnpm optimize:keep
 
 # Process files in another location
 pnpm optimize -- -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
@@ -135,7 +142,7 @@ epub-optimizer/
 ├── README.md                # Documentation
 ├── epubcheck-5.2.1/         # EPUBCheck for EPUB validation
 ├── scripts/                 # Helper scripts
-│   ├── fix_xml.js           # Fixes XML validation issues
+│   ├── fix_xml.js           # Fixes XML/XHTML validation issues
 │   └── fix_span_tags.js     # Fixes span tag validation issues
 └── src/                     # Source code directory
     ├── index.js             # Main application logic
@@ -154,7 +161,7 @@ epub-optimizer/
 
 1. **"Error: Unable to access jarfile"**: Make sure Java is installed and EPUBCheck is properly set up in the project root.
 
-2. **XML Validation Errors**: If validation fails after optimization, try running the fix script manually:
+2. **XML/XHTML Validation Errors**: If validation fails after optimization, try running the fix script manually:
 
    ```
    pnpm fix
@@ -174,15 +181,15 @@ If you encounter issues not covered in this documentation, please [open an issue
 ## Dependencies
 
 - archiver - For creating compressed archives
+- cheerio - For robust HTML/XHTML DOM manipulation
 - clean-css - For CSS minification
 - fs-extra - Enhanced file system operations
 - html-minifier-terser - For HTML minification
-- imagemin - For image optimization
-- imagemin-mozjpeg - JPEG compression
-- imagemin-pngquant - PNG compression
+- sharp - For image optimization (JPEG, PNG, WebP, GIF, AVIF, SVG)
 - unzipper - For extracting EPUB files
 - yargs - For command-line argument parsing
 - epubcheck - For EPUB validation (external dependency)
+- @biomejs/biome - For linting and formatting (dev dependency)
 
 ## License
 
