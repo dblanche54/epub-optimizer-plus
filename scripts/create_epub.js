@@ -2,11 +2,38 @@ const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 const config = require("../src/utils/config");
+const yargs = require("yargs/yargs");
+const { hideBin } = require("yargs/helpers");
+
+// Parse command line arguments
+const argv = yargs(hideBin(process.argv))
+  .option("input", {
+    alias: "i",
+    type: "string",
+    description: "Input EPUB file path",
+    default: config.inputEPUB,
+  })
+  .option("output", {
+    alias: "o",
+    type: "string",
+    description: "Output EPUB file path",
+    default: config.outputEPUB,
+  })
+  .help(false)
+  .version(false).argv;
+
+// Get the input and output file paths from arguments or default config
+const inputEpub = argv.input || config.inputEPUB;
+const outputEpub = argv.output || config.outputEPUB;
+
+// Get the basename for creating the fixed file
+const inputBasename = path.basename(inputEpub, ".epub");
+const fixedEpubName = `fixed_${inputBasename}.epub`;
 
 // Get the extraction directory from config
 const extractedDir = path.join(__dirname, "..", config.tempDir);
-const fixedEpubPath = path.join(__dirname, "..", config.fixedEPUB);
-const outputEpubPath = path.join(__dirname, "..", config.outputEPUB);
+const fixedEpubPath = path.join(__dirname, "..", fixedEpubName);
+const outputEpubPath = path.join(__dirname, "..", outputEpub);
 
 // Verify the directory exists
 if (!fs.existsSync(extractedDir)) {
@@ -37,11 +64,11 @@ try {
     `cd "${extractedDir}" && zip -Xr9D "${fixedEpubPath}" . -x mimetype`
   );
 
-  console.log(`Created ${config.fixedEPUB}`);
+  console.log(`Created ${fixedEpubName}`);
 
   // Copy to the output file
   fs.copyFileSync(fixedEpubPath, outputEpubPath);
-  console.log(`Copied to ${config.outputEPUB}`);
+  console.log(`Copied to ${outputEpub}`);
 } catch (error) {
   console.error(`Error creating EPUB: ${error.message}`);
   process.exit(1);

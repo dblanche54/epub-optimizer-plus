@@ -4,17 +4,20 @@ const cheerio = require("cheerio");
 const config = require("../src/utils/config");
 
 // Properly format self-closing tags in XML/XHTML files
-function fixXml(content) {
+function fixXml(originalContent) {
   // Remove all </br> tags (invalid in XHTML)
-  content = content.replace(/<\/br>/gi, "");
+  let processedContent = originalContent.replace(/<\/br>/gi, "");
   // Convert all <br> to <br/> (self-closing)
-  content = content.replace(/<br(?![\w\/])/gi, "<br/");
+  processedContent = processedContent.replace(/<br(?![\w\/])/gi, "<br/");
 
   // Ensure XML declaration is immediately followed by <html>
-  content = content.replace(/(<\?xml[^>]+>)[\s\r\n]+<html/, "$1<html");
+  processedContent = processedContent.replace(
+    /(<\?xml[^>]+>)[\s\r\n]+<html/,
+    "$1<html"
+  );
 
   // Use cheerio for DOM manipulation
-  const $ = cheerio.load(content, { xmlMode: true });
+  const $ = cheerio.load(processedContent, { xmlMode: true });
 
   // Remove all <script> tags (not allowed in EPUB XHTML)
   $("script").remove();
@@ -51,11 +54,12 @@ function fixXml(content) {
     // cheerio with xmlMode will output <br/>
   });
   // Example: ensure all <meta>, <link>, <img>, <input>, <hr> are self-closed
-  ["meta", "link", "img", "input", "hr"].forEach((tag) => {
+  const selfClosingTags = ["meta", "link", "img", "input", "hr"];
+  for (const tag of selfClosingTags) {
     $(tag).each((_, el) => {
       // cheerio with xmlMode will output self-closed tags
     });
-  });
+  }
   // Serialize back to XML
   return $.xml();
 }
@@ -86,7 +90,7 @@ const xhtmlFiles = fs
   .map((file) => path.join(opsDir, file));
 
 // Fix each file
-xhtmlFiles.forEach((file) => {
+for (const file of xhtmlFiles) {
   try {
     console.log(`Processing ${file}`);
     const content = fs.readFileSync(file, "utf8");
@@ -95,6 +99,6 @@ xhtmlFiles.forEach((file) => {
   } catch (error) {
     console.error(`Error processing ${file}:`, error);
   }
-});
+}
 
 console.log("All files processed.");

@@ -151,8 +151,12 @@ epub-optimizer/
 ├── README.md                # Documentation
 ├── epubcheck-5.2.1/         # EPUBCheck for EPUB validation
 ├── scripts/                 # Helper scripts
+│   ├── build.js             # Full optimization pipeline script
+│   ├── build-clean.js       # Full pipeline with cleanup script
+│   ├── create_epub.js       # EPUB packaging script
 │   ├── fix_xml.js           # Fixes XML/XHTML validation issues
-│   └── fix_span_tags.js     # Fixes span tag validation issues
+│   ├── fix_span_tags.js     # Fixes span tag validation issues
+│   └── validate_epub.js     # EPUB validation script
 └── src/                     # Source code directory
     ├── index.js             # Main application logic
     ├── cli.js               # Command-line interface

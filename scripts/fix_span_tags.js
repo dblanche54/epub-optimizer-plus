@@ -29,10 +29,10 @@ const xhtmlFiles = fs
   .map((file) => path.join(opsDir, file));
 
 // Fix each file
-xhtmlFiles.forEach((file) => {
+for (const file of xhtmlFiles) {
   try {
     console.log(`Processing ${file}`);
-    let content = fs.readFileSync(file, "utf8");
+    const content = fs.readFileSync(file, "utf8");
     // Use cheerio for DOM manipulation
     const $ = cheerio.load(content, { xmlMode: true });
     // Example: fix span tags in h1
@@ -52,6 +52,6 @@ xhtmlFiles.forEach((file) => {
   } catch (error) {
     console.error(`Error processing ${file}:`, error);
   }
-});
+}
 
 console.log("All XHTML files fixed.");

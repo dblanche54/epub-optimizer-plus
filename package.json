@@ -12,9 +12,9 @@
         "fix": "node scripts/fix_span_tags.js && node scripts/fix_xml.js",
         "create-epub": "node scripts/create_epub.js",
         "validate": "node scripts/validate_epub.js",
-        "build": "pnpm optimize:keep -- && pnpm fix && pnpm create-epub && pnpm validate",
+        "build": "node scripts/build.js",
         "cleanup": "rm -rf temp_epub fixed_mybook.epub",
-        "build-clean": "pnpm build -- && pnpm cleanup",
+        "build-clean": "node scripts/build-clean.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "biome check .",
         "format": "biome format ."
