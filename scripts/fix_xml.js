@@ -1,45 +1,63 @@
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
+const cheerio = require("cheerio");
 const config = require("../src/utils/config");
 
 // Properly format self-closing tags in XML/XHTML files
 function fixXml(content) {
-  // Replace all self-closing tags
-  let fixed = content
-    // First, properly format the document
-    .replace(
-      /<\?xml\s+version="1\.0"\s+encoding="UTF-8"\?>\s+<html/g,
-      '<?xml version="1.0" encoding="UTF-8"?>\n<html'
-    )
+  // Remove all </br> tags (invalid in XHTML)
+  content = content.replace(/<\/br>/gi, "");
+  // Convert all <br> to <br/> (self-closing)
+  content = content.replace(/<br(?![\w\/])/gi, "<br/");
 
-    // Fix self-closing tags that aren't properly closed - be more aggressive
-    .replace(/<(meta|link|img|input|br|hr)([^>]*?)>/g, "<$1$2/>")
+  // Ensure XML declaration is immediately followed by <html>
+  content = content.replace(/(<\?xml[^>]+>)[\s\r\n]+<html/, "$1<html");
 
-    // Fix script tags that don't have closing tags
-    .replace(/<script([^>]*)>(?!.*?<\/script>)/g, "<script$1></script>")
+  // Use cheerio for DOM manipulation
+  const $ = cheerio.load(content, { xmlMode: true });
 
-    // Fix spaces in self-closing tags (sometimes caused by previous replacements)
-    .replace(/\s+\/>/g, "/>")
+  // Remove all <script> tags (not allowed in EPUB XHTML)
+  $("script").remove();
 
-    // Fix nested self-closing tags (if any got caught by the regex)
-    .replace(/\/\/>/g, "/>")
+  // Only keep <meta> tags that are direct children of <head>
+  $("meta").each((_, el) => {
+    const parent = $(el).parent();
+    if (!parent.is("head")) {
+      $(el).remove();
+    }
+  });
 
-    // Add missing xmlns if needed
-    .replace(
-      /<html(?!\s+[^>]*xmlns=)/g,
-      '<html xmlns="http://www.w3.org/1999/xhtml"'
-    );
+  // Remove any text nodes that are direct children of <html> (including whitespace)
+  $("html")
+    .contents()
+    .filter(function () {
+      return (
+        (this.type === "text" && $(this).text().trim().length === 0) ||
+        (this.type === "text" && $(this).text().trim().length > 0)
+      );
+    })
+    .remove();
 
-  // More aggressive fixes for span tags
-  fixed = fixed.replace(
-    /<span([^>]*)>([^<]*)(<br\/>)([^<]*)<\/h1>/g,
-    "<span$1>$2$3$4</span></h1>"
-  );
+  // Remove any text nodes that are direct children of <body> (not allowed)
+  $("body")
+    .contents()
+    .filter(function () {
+      return this.type === "text" && $(this).text().trim().length > 0;
+    })
+    .remove();
 
-  // Make sure all <br> tags are properly closed
-  fixed = fixed.replace(/<br([^/>]*?)>/g, "<br$1/>");
-
-  return fixed;
+  // Example: ensure all <br> tags are self-closed
+  $("br").each((_, el) => {
+    // cheerio with xmlMode will output <br/>
+  });
+  // Example: ensure all <meta>, <link>, <img>, <input>, <hr> are self-closed
+  ["meta", "link", "img", "input", "hr"].forEach((tag) => {
+    $(tag).each((_, el) => {
+      // cheerio with xmlMode will output self-closed tags
+    });
+  });
+  // Serialize back to XML
+  return $.xml();
 }
 
 // Get the extraction directory from config

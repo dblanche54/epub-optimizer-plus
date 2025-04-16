@@ -2,6 +2,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const { minify } = require("html-minifier-terser");
 const CleanCSS = require("clean-css");
+const cheerio = require("cheerio");
 const config = require("../utils/config");
 
 /**
@@ -26,12 +27,16 @@ async function processHTML(dir) {
 }
 
 /**
- * Minify HTML file
+ * Minify HTML file using cheerio and html-minifier-terser
  * @param {string} filePath - Path to HTML file
  */
 async function minifyHTML(filePath) {
   const content = await fs.readFile(filePath, "utf8");
-  const minified = await minify(content, config.htmlOptions);
+  // Use cheerio for DOM manipulation (if needed)
+  const $ = cheerio.load(content, { xmlMode: filePath.endsWith(".xhtml") });
+  // Example: you could manipulate the DOM here if needed
+  const domContent = $.html();
+  const minified = await minify(domContent, config.htmlOptions);
   await fs.writeFile(filePath, minified);
 }
 
