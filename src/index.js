@@ -18,11 +18,11 @@ async function optimizeEPUB() {
 
     // 2. Process HTML and CSS files
     await processHTML(args.temp);
-    console.log(`🔄 Optimized HTML/CSS files`);
+    console.log("🔄 Optimized HTML/CSS files");
 
     // 3. Optimize images
     await optimizeImages(args.temp);
-    console.log(`🖼️  Optimized image files`);
+    console.log("🖼️  Optimized image files");
 
     // 4. Recompress as EPUB
     await compressEPUB(args.output, args.temp);
