@@ -1,0 +1,46 @@
+{
+    "name": "epub-optimizer",
+    "version": "1.0.0",
+    "description": "EPUB optimization script to compress HTML, CSS, images and recompress the archive",
+    "main": "optimize-epub.js",
+    "bin": {
+        "epub-optimize": "./optimize-epub.js"
+    },
+    "scripts": {
+        "optimize": "node optimize-epub.js",
+        "fix": "node scripts/fix_xml.js && node scripts/fix_span_tags.js",
+        "validate": "java -jar epubcheck-5.2.1/epubcheck.jar mybook_opt.epub",
+        "build": "pnpm optimize && pnpm fix && pnpm validate",
+        "cleanup": "rm -rf extracted fixed_mybook.epub",
+        "build-clean": "pnpm build && pnpm cleanup",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "lint": "eslint ."
+    },
+    "author": "kiki-le-singe",
+    "license": "MIT",
+    "dependencies": {
+        "archiver": "^5.3.1",
+        "clean-css": "^5.3.2",
+        "fs-extra": "^11.2.0",
+        "html-minifier-terser": "^7.2.0",
+        "imagemin": "^8.0.1",
+        "imagemin-mozjpeg": "^10.0.0",
+        "imagemin-pngquant": "^9.0.0",
+        "path": "^0.12.7",
+        "unzipper": "^0.10.11",
+        "yargs": "^17.7.2"
+    },
+    "devDependencies": {
+        "eslint": "^8.52.0"
+    },
+    "engines": {
+        "node": ">=14.0.0"
+    },
+    "keywords": [
+        "epub",
+        "optimizer",
+        "compression",
+        "minification",
+        "ebook"
+    ]
+}
