@@ -31,4 +31,7 @@ module.exports = {
   archiveOptions: {
     zlib: { level: 9 },
   },
+
+  // EPUBCheck path
+  epubcheckPath: "epubcheck-5.2.1/epubcheck.jar",
 };

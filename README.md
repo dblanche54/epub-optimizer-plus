@@ -88,13 +88,22 @@ The project includes the following scripts (see also the `package.json`):
 # Complete optimization, fixing, and validation
 pnpm build
 
+# Complete optimization with custom input/output
+pnpm build -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
+
 # Optimize, fix, validate and clean up temporary files
 pnpm build-clean
+
+# Optimize, fix, validate, clean up with custom input/output
+pnpm build-clean -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
+
+# Validate a specific EPUB file (dynamic)
+pnpm validate -o /path/to/output/mybook_optimized.epub
 
 # Individual steps
 pnpm optimize        # Only compress the EPUB file
 pnpm fix             # Fix XML/XHTML validation issues
-pnpm validate        # Check EPUB validity
+pnpm validate        # Check EPUB validity (uses the correct output file if -o is provided)
 ```
 
 ### Advanced Usage Examples
