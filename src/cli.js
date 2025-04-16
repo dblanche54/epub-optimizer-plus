@@ -52,7 +52,7 @@ function parseArguments() {
     .version()
     .alias("version", "v")
     .epilog(
-      "For more information visit https://github.com/your-username/epub-optimizer"
+      "For more information visit https://github.com/kiki-le-singe/epub-optimizer"
     ).argv;
 }
 
