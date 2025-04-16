@@ -29,9 +29,13 @@ async function optimizeEPUB() {
     console.log(`✅ Created optimized EPUB: ${args.output}`);
 
     // 5. Clean up temporary files if needed
-    if (!args["keep-temp"]) {
+    if (!args["keep-temp"] && process.env.KEEP_TEMP !== "true") {
       await fs.remove(args.temp);
       console.log(`🧹 Removed temporary directory: ${args.temp}`);
+    } else if (args["keep-temp"] || process.env.KEEP_TEMP === "true") {
+      console.log(
+        `📁 Kept temporary directory: ${args.temp} for post-processing`
+      );
     }
 
     // Report file size difference

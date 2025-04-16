@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { exec } = require("child_process");
+const config = require("../src/utils/config");
 
 // Properly format self-closing tags in XML/XHTML files
 function fixXml(content) {
@@ -12,8 +12,8 @@ function fixXml(content) {
       '<?xml version="1.0" encoding="UTF-8"?>\n<html'
     )
 
-    // Fix self-closing tags that aren't properly closed
-    .replace(/<(meta|link|img|input|br|hr)([^>]*[^\/])>/g, "<$1$2/>")
+    // Fix self-closing tags that aren't properly closed - be more aggressive
+    .replace(/<(meta|link|img|input|br|hr)([^>]*?)>/g, "<$1$2/>")
 
     // Fix script tags that don't have closing tags
     .replace(/<script([^>]*)>(?!.*?<\/script>)/g, "<script$1></script>")
@@ -30,12 +30,36 @@ function fixXml(content) {
       '<html xmlns="http://www.w3.org/1999/xhtml"'
     );
 
+  // More aggressive fixes for span tags
+  fixed = fixed.replace(
+    /<span([^>]*)>([^<]*)(<br\/>)([^<]*)<\/h1>/g,
+    "<span$1>$2$3$4</span></h1>"
+  );
+
+  // Make sure all <br> tags are properly closed
+  fixed = fixed.replace(/<br([^/>]*?)>/g, "<br$1/>");
+
   return fixed;
 }
 
-// Process all XHTML files in the extracted directory
-const extractedDir = path.join(__dirname, "..", "extracted");
+// Get the extraction directory from config
+const extractedDir = path.join(__dirname, "..", config.tempDir);
 const opsDir = path.join(extractedDir, "OPS");
+
+// Verify the directory exists
+if (!fs.existsSync(extractedDir)) {
+  console.error(`Error: Directory ${extractedDir} does not exist.`);
+  console.error(
+    "Please run the optimization script first to extract the EPUB."
+  );
+  process.exit(1);
+}
+
+if (!fs.existsSync(opsDir)) {
+  console.error(`Error: Directory ${opsDir} does not exist.`);
+  console.error("Please make sure the extracted EPUB has an OPS directory.");
+  process.exit(1);
+}
 
 // Get all XHTML files
 const xhtmlFiles = fs
@@ -55,28 +79,4 @@ xhtmlFiles.forEach((file) => {
   }
 });
 
-console.log("All files processed. Creating new EPUB...");
-
-// Create the fixed EPUB
-exec(
-  "cd extracted && zip -X0 ../fixed_mybook.epub mimetype && zip -Xur9D ../fixed_mybook.epub * -x mimetype",
-  (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error creating EPUB: ${error.message}`);
-      return;
-    }
-    if (stderr) {
-      console.error(`stderr: ${stderr}`);
-      return;
-    }
-    console.log(`stdout: ${stdout}`);
-    console.log("Created fixed_mybook.epub");
-
-    // Copy to the output file
-    fs.copyFileSync(
-      path.join(__dirname, "..", "fixed_mybook.epub"),
-      path.join(__dirname, "..", "mybook_opt.epub")
-    );
-    console.log("Copied to mybook_opt.epub");
-  }
-);
+console.log("All files processed.");

@@ -8,10 +8,12 @@
     },
     "scripts": {
         "optimize": "node optimize-epub.js",
-        "fix": "node scripts/fix_xml.js && node scripts/fix_span_tags.js",
+        "optimize:keep": "KEEP_TEMP=true node optimize-epub.js",
+        "fix": "node scripts/fix_span_tags.js && node scripts/fix_xml.js",
+        "create-epub": "node scripts/create_epub.js",
         "validate": "java -jar epubcheck-5.2.1/epubcheck.jar mybook_opt.epub",
-        "build": "pnpm optimize && pnpm fix && pnpm validate",
-        "cleanup": "rm -rf extracted fixed_mybook.epub",
+        "build": "pnpm optimize:keep && pnpm fix && pnpm create-epub && pnpm validate",
+        "cleanup": "rm -rf temp_epub fixed_mybook.epub",
         "build-clean": "pnpm build && pnpm cleanup",
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "eslint ."
