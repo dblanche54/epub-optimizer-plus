@@ -1,6 +1,7 @@
 module.exports = {
   // Default file paths
   inputEPUB: "mybook.epub",
+  fixedEPUB: "fixed_mybook.epub",
   outputEPUB: "mybook_opt.epub",
   tempDir: "temp_epub",
 

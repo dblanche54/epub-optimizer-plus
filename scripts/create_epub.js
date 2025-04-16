@@ -5,7 +5,7 @@ const config = require("../src/utils/config");
 
 // Get the extraction directory from config
 const extractedDir = path.join(__dirname, "..", config.tempDir);
-const fixedEpubPath = path.join(__dirname, "..", "fixed_mybook.epub");
+const fixedEpubPath = path.join(__dirname, "..", config.fixedEPUB);
 const outputEpubPath = path.join(__dirname, "..", config.outputEPUB);
 
 // Verify the directory exists
@@ -37,7 +37,7 @@ try {
     `cd "${extractedDir}" && zip -Xr9D "${fixedEpubPath}" . -x mimetype`
   );
 
-  console.log("Created fixed_mybook.epub");
+  console.log(`Created ${config.fixedEPUB}`);
 
   // Copy to the output file
   fs.copyFileSync(fixedEpubPath, outputEpubPath);
