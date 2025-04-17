@@ -15,6 +15,7 @@ try {
   console.log("Running fix scripts");
   execSync("node scripts/fix_span_tags.js", { stdio: "inherit" });
   execSync("node scripts/fix_xml.js", { stdio: "inherit" });
+  execSync("node scripts/fix_opf.js", { stdio: "inherit" });
 
   console.log(`Creating EPUB with arguments: ${args}`);
   execSync(`node scripts/create_epub.js ${args}`, { stdio: "inherit" });
