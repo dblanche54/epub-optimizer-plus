@@ -9,17 +9,25 @@ import config from "../utils/config.ts";
  * @param dir Directory containing images
  */
 async function optimizeImages(dir: string): Promise<void> {
-  const entries = await fs.readdir(dir);
+  try {
+    const entries = await fs.readdir(dir);
 
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry);
-    const stat = await fs.stat(fullPath);
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry);
+      const stat = await fs.stat(fullPath);
 
-    if (stat.isDirectory()) {
-      await optimizeImages(fullPath);
-    } else if (/\.(jpe?g|png|webp|gif|avif|svg)$/i.test(entry)) {
-      await compressImage(fullPath);
+      if (stat.isDirectory()) {
+        await optimizeImages(fullPath);
+      } else if (/\.(jpe?g|png|webp|gif|avif|svg)$/i.test(entry)) {
+        await compressImage(fullPath);
+      }
     }
+  } catch (error) {
+    console.error(
+      `Error processing directory ${dir}: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
   }
 }
 
@@ -28,21 +36,27 @@ async function optimizeImages(dir: string): Promise<void> {
  * @param imagePath Path to image file
  */
 async function compressImage(imagePath: string): Promise<void> {
+  const filename = path.basename(imagePath);
+
   try {
     const extension = path.extname(imagePath).toLowerCase();
     const imageBuffer = await fs.readFile(imagePath);
-    let processedImage = sharp(imageBuffer);
-
-    // Get image metadata
-    const metadata = await processedImage.metadata();
 
     // Skip if image is already small (less than 10KB)
     if (imageBuffer.length < 10 * 1024) {
-      console.log(`⏩ Skipping small image: ${path.basename(imagePath)}`);
+      console.log(`⏩ Skipping small image: ${filename}`);
       return;
     }
 
-    // Process based on file type
+    // Skip SVG files as they're already text/XML
+    if (extension === ".svg") {
+      return;
+    }
+
+    let processedImage = sharp(imageBuffer);
+    const metadata = await processedImage.metadata();
+
+    // Configure compression based on file type
     switch (extension) {
       case ".jpg":
       case ".jpeg":
@@ -77,18 +91,15 @@ async function compressImage(imagePath: string): Promise<void> {
         });
         break;
 
-      case ".svg":
-        // Simply return for SVG files - they're already text/XML
-        return;
-
       default:
         // Unknown format, skip processing
         return;
     }
 
     // Write optimized image back to the same path
-    await processedImage.toFile(imagePath + ".tmp");
-    await fs.rename(imagePath + ".tmp", imagePath);
+    const tempPath = `${imagePath}.tmp`;
+    await processedImage.toFile(tempPath);
+    await fs.rename(tempPath, imagePath);
 
     // Log optimization result
     const newSize = (await fs.stat(imagePath)).size;
@@ -96,22 +107,16 @@ async function compressImage(imagePath: string): Promise<void> {
       ((imageBuffer.length - newSize) / imageBuffer.length) *
       100
     ).toFixed(1);
+
     if (newSize < imageBuffer.length) {
-      console.log(
-        `💾 Optimized ${path.basename(imagePath)}: ${savings}% smaller`
-      );
+      console.log(`💾 Optimized ${filename}: ${savings}% smaller`);
     }
   } catch (error) {
-    if (error instanceof Error) {
-      console.error(
-        `⚠️ Error processing ${path.basename(imagePath)}: ${error.message}`
-      );
-    } else {
-      console.error(
-        `⚠️ Unknown error processing ${path.basename(imagePath)}`,
-        error
-      );
-    }
+    console.error(
+      `⚠️ Error processing ${filename}: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
   }
 }
 

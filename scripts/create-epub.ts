@@ -3,28 +3,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execSync } from "node:child_process";
 import config from "../src/utils/config.ts";
-import yargs from "yargs/yargs";
-import { hideBin } from "yargs/helpers";
+import { parseArgs, handleError } from "./utils.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Parse command line arguments
-const argv = yargs(hideBin(process.argv))
-  .option("input", {
-    alias: "i",
-    type: "string",
-    description: "Input EPUB file path",
-    default: config.inputEPUB,
-  })
-  .option("output", {
-    alias: "o",
-    type: "string",
-    description: "Output EPUB file path",
-    default: config.outputEPUB,
-  })
-  .help(false)
-  .version(false).argv as { input: string; output: string };
+const argv = parseArgs(true, true);
 
 // Get the input and output file paths from arguments or default config
 const inputEpub = argv.input || config.inputEPUB;
@@ -74,10 +59,5 @@ try {
   fs.copyFileSync(fixedEpubPath, outputEpubPath);
   console.log(`Copied to ${outputEpub}`);
 } catch (error) {
-  if (error instanceof Error) {
-    console.error(`Error creating EPUB: ${error.message}`);
-  } else {
-    console.error("Unknown error creating EPUB", error);
-  }
-  process.exit(1);
+  handleError(error);
 }

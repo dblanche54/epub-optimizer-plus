@@ -1,38 +1,48 @@
 #!/usr/bin/env ts-node
 
-import { execSync } from "node:child_process";
+import { getInputFileInfo, handleError, runCommand } from "./utils.ts";
+import yargs from "yargs/yargs";
+import { hideBin } from "yargs/helpers";
 
-// Prepare arguments for subprocess
-const args = process.argv.slice(2).join(" ");
+// Parse command options including clean flag
+const argv = yargs(hideBin(process.argv))
+  .option("clean", {
+    type: "boolean",
+    description: "Clean temporary files after build",
+    default: false,
+  })
+  .help(false)
+  .version(false).argv as { clean: boolean };
+
+// Get input file info and args
+const { inputFile, fixedFile, args } = getInputFileInfo();
 
 try {
   console.log(`Running optimize with arguments: ${args}`);
-  // Use KEEP_TEMP to keep temporary files during processing
-  execSync(`KEEP_TEMP=true ts-node optimize-epub.ts ${args}`, {
-    stdio: "inherit",
-  });
+  runCommand(`KEEP_TEMP=true ts-node optimize-epub.ts ${args}`);
 
   console.log("Running fix scripts");
-  execSync("ts-node scripts/fix/index.ts", { stdio: "inherit" });
+  runCommand("ts-node scripts/fix/index.ts");
 
   console.log("Running OPF update script");
-  execSync("ts-node scripts/opf/update-opf.ts", { stdio: "inherit" });
+  runCommand("ts-node scripts/opf/update-opf.ts");
 
   console.log(`Creating EPUB with arguments: ${args}`);
-  execSync(`ts-node scripts/create-epub.ts ${args}`, { stdio: "inherit" });
+  runCommand(`ts-node scripts/create-epub.ts ${args}`);
 
   console.log(`Validating EPUB with arguments: ${args}`);
-  execSync(`ts-node scripts/validate-epub.ts ${args}`, { stdio: "inherit" });
+  runCommand(`ts-node scripts/validate-epub.ts ${args}`);
 
-  console.log("Build completed successfully!");
-  console.log(
-    'Note: Temporary files have been kept. Use "pnpm cleanup" to remove them if needed.'
-  );
-} catch (error) {
-  if (error instanceof Error) {
-    console.error(`Error: ${error.message}`);
+  if (argv.clean) {
+    console.log("Cleaning up temporary files");
+    runCommand(`rm -rf temp_epub ${fixedFile}`);
+    console.log("All done!");
   } else {
-    console.error("Unknown error", error);
+    console.log("Build completed successfully!");
+    console.log(
+      'Note: Temporary files have been kept. Use "pnpm cleanup" or run with --clean flag to remove them.'
+    );
   }
-  process.exit(1);
+} catch (error) {
+  handleError(error);
 }

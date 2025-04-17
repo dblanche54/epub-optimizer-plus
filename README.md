@@ -79,18 +79,16 @@ This tool requires EPUBCheck to validate EPUB files. Follow these steps:
 
 The project includes the following scripts (see also the `package.json`):
 
-| Script          | Description                                                                     |
-| --------------- | ------------------------------------------------------------------------------- |
-| `optimize`      | Optimize the EPUB file (compression, minification, image optimization)          |
-| `optimize:keep` | Optimize and keep temp files for debugging                                      |
-| `fix`           | Run all fix scripts on extracted files (fixes span tags, XML, and XHTML issues) |
-| `create-epub`   | Repackage EPUB from temp directory                                              |
-| `validate`      | Validate EPUB with EPUBCheck                                                    |
-| `build`         | Full pipeline: optimize, fix, repackage, validate                               |
-| `cleanup`       | Remove temp and intermediate files                                              |
-| `build-clean`   | Full pipeline and cleanup                                                       |
-| `lint`          | Lint code with Biome                                                            |
-| `format`        | Format code with Biome                                                          |
+| Script          | Description                                                      |
+| --------------- | ---------------------------------------------------------------- |
+| `build`         | Full pipeline: optimize, fix, repackage, validate                |
+| `build:clean`   | Full pipeline with temporary file cleanup                        |
+| `optimize`      | Optimize the EPUB file (compression, minification, etc.)         |
+| `optimize:keep` | Optimize and keep temp files for debugging                       |
+| `fix`           | Run all fix scripts on extracted files (fixes validation issues) |
+| `create-epub`   | Repackage EPUB from temp directory                               |
+| `validate`      | Validate EPUB with EPUBCheck                                     |
+| `cleanup`       | Remove temp and intermediate files                               |
 
 ### Basic Usage
 
@@ -102,10 +100,10 @@ pnpm build
 pnpm build -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
 
 # Optimize, fix, validate and clean up temporary files
-pnpm build-clean
+pnpm cleanup
 
 # Optimize, fix, validate, clean up with custom input/output
-pnpm build-clean -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
+pnpm build:clean -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
 
 # Validate a specific EPUB file (dynamic)
 pnpm validate -o /path/to/output/mybook_optimized.epub
@@ -161,10 +159,8 @@ epub-optimizer/
 ├── README.md                # Documentation
 ├── epubcheck/               # EPUBCheck for EPUB validation (not included in repo, see 'EPUBCheck Setup' below)
 ├── scripts/                 # Helper scripts
-│   ├── build.ts             # Full optimization pipeline script
-│   ├── build-clean.ts       # Full pipeline with cleanup script
+│   ├── build.ts             # Full optimization pipeline script (with --clean option)
 │   ├── create-epub.ts       # EPUB packaging script
-│   │   └── index.ts         # Entry point for all general fixes
 │   ├── fix/                 # General fix scripts (modular)
 │   │   ├── fix-span-tags.ts
 │   │   ├── fix-xml.ts
@@ -173,6 +169,7 @@ epub-optimizer/
 │   │   ├── add-cover-image-property.ts
 │   │   ├── update-cover-linear.ts
 │   │   └── update-opf.ts    # Entry point for all OPF fixes
+│   ├── utils.ts             # Shared utilities for scripts
 │   └── validate-epub.ts     # EPUB validation script
 └── src/                     # Source code directory
     ├── index.ts             # Main application logic
@@ -183,6 +180,18 @@ epub-optimizer/
     │   └── image-processor.ts    # Image optimization
     └── utils/               # Utility modules
         └── config.ts        # Application configuration
+```
+
+## Building and Processing
+
+You can use the `build.ts` script with various options:
+
+```bash
+# Build without cleaning temporary files
+ts-node scripts/build.ts -i your-book.epub -o optimized-book.epub
+
+# Build and clean temporary files
+ts-node scripts/build.ts -i your-book.epub -o optimized-book.epub --clean
 ```
 
 ## Modular Fix Scripts

@@ -38,44 +38,22 @@ function fixXml(originalContent: string) {
     }
   });
 
-  // Remove any text nodes that are direct children of <html> (including whitespace)
+  // Remove any text nodes that are direct children of <html>
   $("html")
     .contents()
-    .filter(function (this: any) {
-      return (
-        (this.type === "text" && $(this).text().trim().length === 0) ||
-        (this.type === "text" && $(this).text().trim().length > 0)
-      );
+    .filter(function (this: cheerio.Element) {
+      return this.type === "text";
     })
     .remove();
 
-  // Remove any text nodes that are direct children of <body> (not allowed)
+  // Remove any text nodes that are direct children of <body>
   $("body")
     .contents()
-    .filter(function (this: any) {
+    .filter(function (this: cheerio.Element) {
       return this.type === "text" && $(this).text().trim().length > 0;
     })
     .remove();
 
-  // Example: ensure all <br> tags are self-closed
-  $("br").each(function (
-    this: cheerio.Element,
-    _: number,
-    el: cheerio.Element
-  ) {
-    // cheerio with xmlMode will output <br/>
-  });
-  // Example: ensure all <meta>, <link>, <img>, <input>, <hr> are self-closed
-  const selfClosingTags = ["meta", "link", "img", "input", "hr"];
-  for (const tag of selfClosingTags) {
-    $(tag).each(function (
-      this: cheerio.Element,
-      _: number,
-      el: cheerio.Element
-    ) {
-      // cheerio with xmlMode will output self-closed tags
-    });
-  }
   // Serialize back to XML
   return $.xml();
 }
@@ -100,10 +78,10 @@ if (!fs.existsSync(opsDir)) {
 }
 
 // Get all XHTML files
-const xhtmlFiles: string[] = fs
+const xhtmlFiles = fs
   .readdirSync(opsDir)
-  .filter((file: string) => file.endsWith(".xhtml"))
-  .map((file: string) => path.join(opsDir, file));
+  .filter((file) => file.endsWith(".xhtml"))
+  .map((file) => path.join(opsDir, file));
 
 // Fix each file
 for (const file of xhtmlFiles) {

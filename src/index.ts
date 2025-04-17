@@ -7,12 +7,24 @@ import type { Args } from "./types.ts";
 
 /**
  * Main function to optimize an EPUB file
+ * Extracts the EPUB, processes its contents, and repackages it
  */
 async function optimizeEPUB() {
   // Parse command line arguments
   const args = (await parseArguments()) as Args;
 
   try {
+    // Validate inputs
+    if (!(await fs.pathExists(args.input))) {
+      throw new Error(`Input file not found: ${args.input}`);
+    }
+
+    // Create parent directory for output if it doesn't exist
+    const outputDir = args.output.split("/").slice(0, -1).join("/");
+    if (outputDir) {
+      await fs.ensureDir(outputDir);
+    }
+
     // 1. Extract EPUB file
     await extractEPUB(args.input, args.temp);
     console.log(`📦 Extracted ${args.input} to ${args.temp}`);
@@ -33,28 +45,14 @@ async function optimizeEPUB() {
     if (!args["keep-temp"] && process.env.KEEP_TEMP !== "true") {
       await fs.remove(args.temp);
       console.log(`🧹 Removed temporary directory: ${args.temp}`);
-    } else if (args["keep-temp"] || process.env.KEEP_TEMP === "true") {
+    } else {
       console.log(
         `📁 Kept temporary directory: ${args.temp} for post-processing`
       );
     }
 
-    // Report file size difference
-    const originalSize = (await fs.stat(args.input)).size;
-    const optimizedSize = (await fs.stat(args.output)).size;
-    const reduction = (
-      ((originalSize - optimizedSize) / originalSize) *
-      100
-    ).toFixed(2);
-
-    console.log(`
-📊 File Size Comparison:
-   Original: ${formatFileSize(originalSize)}
-   Optimized: ${formatFileSize(optimizedSize)}
-   Reduction: ${reduction}% (${formatFileSize(
-      originalSize - optimizedSize
-    )} saved)
-    `);
+    // Report file size comparison
+    await reportFileSizeComparison(args.input, args.output);
   } catch (error) {
     if (error instanceof Error) {
       console.error(`❌ Error: ${error.message}`);
@@ -62,6 +60,32 @@ async function optimizeEPUB() {
       console.error("❌ Unknown error", error);
     }
     process.exit(1);
+  }
+}
+
+/**
+ * Compare and report original vs optimized file sizes
+ * @param originalPath Path to original file
+ * @param optimizedPath Path to optimized file
+ */
+async function reportFileSizeComparison(
+  originalPath: string,
+  optimizedPath: string
+): Promise<void> {
+  try {
+    const originalSize = (await fs.stat(originalPath)).size;
+    const optimizedSize = (await fs.stat(optimizedPath)).size;
+    const reduction = ((originalSize - optimizedSize) / originalSize) * 100;
+    const bytesSaved = originalSize - optimizedSize;
+
+    console.log(`
+📊 File Size Comparison:
+   Original: ${formatFileSize(originalSize)}
+   Optimized: ${formatFileSize(optimizedSize)}
+   Reduction: ${reduction.toFixed(2)}% (${formatFileSize(bytesSaved)} saved)
+    `);
+  } catch (error) {
+    console.error("⚠️ Could not generate file size comparison");
   }
 }
 

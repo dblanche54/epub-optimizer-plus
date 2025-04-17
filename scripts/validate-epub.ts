@@ -1,19 +1,10 @@
 import { spawnSync } from "node:child_process";
-import yargs from "yargs/yargs";
-import { hideBin } from "yargs/helpers";
-import config from "../src/utils/config.ts";
 import path from "node:path";
+import config from "../src/utils/config.ts";
+import { parseArgs, handleError } from "./utils.ts";
 
 // Parse command line arguments
-const argv = yargs(hideBin(process.argv))
-  .option("output", {
-    alias: "o",
-    type: "string",
-    description: "Output EPUB file path",
-    default: config.outputEPUB,
-  })
-  .help(false)
-  .version(false).argv as { output: string };
+const argv = parseArgs(false, true);
 
 const outputEpub = argv.output || config.outputEPUB;
 const epubcheckPath = path.resolve(config.epubcheckPath);
@@ -36,10 +27,5 @@ try {
     console.log("EPUB validation passed.");
   }
 } catch (error) {
-  if (error instanceof Error) {
-    console.error(`Error validating EPUB: ${error.message}`);
-  } else {
-    console.error("Unknown error validating EPUB", error);
-  }
-  process.exit(1);
+  handleError(error);
 }
