@@ -13,7 +13,7 @@
         "create-epub": "node scripts/create_epub.js",
         "validate": "node scripts/validate_epub.js",
         "build": "node scripts/build.js",
-        "cleanup": "rm -rf temp_epub fixed_mybook.epub",
+        "cleanup": "rm -rf temp_epub fixed_*.epub",
         "build-clean": "node scripts/build-clean.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "biome check .",
