@@ -16,13 +16,13 @@ try {
   execSync("node scripts/fix/index.js", { stdio: "inherit" });
 
   console.log("Running OPF update script");
-  execSync("node scripts/opf/update_opf.js", { stdio: "inherit" });
+  execSync("node scripts/opf/update-opf.js", { stdio: "inherit" });
 
   console.log(`Creating EPUB with arguments: ${args}`);
-  execSync(`node scripts/create_epub.js ${args}`, { stdio: "inherit" });
+  execSync(`node scripts/create-epub.js ${args}`, { stdio: "inherit" });
 
   console.log(`Validating EPUB with arguments: ${args}`);
-  execSync(`node scripts/validate_epub.js ${args}`, { stdio: "inherit" });
+  execSync(`node scripts/validate-epub.js ${args}`, { stdio: "inherit" });
 
   console.log("Build completed successfully!");
   console.log(

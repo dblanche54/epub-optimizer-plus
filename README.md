@@ -163,24 +163,24 @@ epub-optimizer/
 ├── scripts/                 # Helper scripts
 │   ├── build.js             # Full optimization pipeline script
 │   ├── build-clean.js       # Full pipeline with cleanup script
-│   ├── create_epub.js       # EPUB packaging script
+│   ├── create-epub.js       # EPUB packaging script
 │   │   └── index.js         # Entry point for all general fixes
 │   ├── fix/                 # General fix scripts (modular)
-│   │   ├── fix_span_tags.js
-│   │   ├── fix_xml.js
+│   │   ├── fix-span-tags.js
+│   │   ├── fix-xml.js
 │   │   └── index.js         # Entry point for all general fixes
 │   ├── opf/                 # OPF-specific modifications (fixes, options, or features)
-│   │   ├── add_cover_image_property.js
-│   │   ├── update_cover_linear.js
-│   │   └── update_opf.js    # Entry point for all OPF fixes
-│   └── validate_epub.js     # EPUB validation script
+│   │   ├── add-cover-image-property.js
+│   │   ├── update-cover-linear.js
+│   │   └── update-opf.js    # Entry point for all OPF fixes
+│   └── validate-epub.js     # EPUB validation script
 └── src/                     # Source code directory
     ├── index.js             # Main application logic
     ├── cli.js               # Command-line interface
     ├── processors/          # Processing modules
-    │   ├── archiveProcessor.js  # EPUB extraction/compression
-    │   ├── htmlProcessor.js     # HTML/CSS processing
-    │   └── imageProcessor.js    # Image optimization
+    │   ├── archive-processor.js  # EPUB extraction/compression
+    │   ├── html-processor.js     # HTML/CSS processing
+    │   └── image-processor.js    # Image optimization
     └── utils/               # Utility modules
         └── config.js        # Application configuration
 ```
@@ -188,7 +188,7 @@ epub-optimizer/
 ## Modular Fix Scripts
 
 - **General fixes** (e.g. span tags, XML/XHTML) are managed in `scripts/fix/` and run via `scripts/fix/index.js`.
-- **OPF-specific modifications** (fixes, options, or features) are managed in `scripts/opf/` and run via `scripts/opf/update_opf.js`.
+- **OPF-specific modifications** (fixes, options, or features) are managed in `scripts/opf/` and run via `scripts/opf/update-opf.js`.
 - To enable/disable a fix, comment or uncomment the relevant `execSync` line in the corresponding index/entry file.
 - To add a new fix, create a new script in the appropriate folder and add an `execSync` call in the index/entry file.
 

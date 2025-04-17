@@ -1,8 +1,8 @@
 const fs = require("fs-extra");
 const { parseArguments } = require("./cli");
-const { extractEPUB, compressEPUB } = require("./processors/archiveProcessor");
-const { processHTML } = require("./processors/htmlProcessor");
-const { optimizeImages } = require("./processors/imageProcessor");
+const { extractEPUB, compressEPUB } = require("./processors/archive-processor");
+const { processHTML } = require("./processors/html-processor");
+const { optimizeImages } = require("./processors/image-processor");
 
 /**
  * Main function to optimize an EPUB file
