@@ -33,5 +33,5 @@ module.exports = {
   },
 
   // EPUBCheck path
-  epubcheckPath: "epubcheck-5.2.1/epubcheck.jar",
+  epubcheckPath: "epubcheck/epubcheck.jar",
 };

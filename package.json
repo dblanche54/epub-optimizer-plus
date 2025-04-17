@@ -9,11 +9,11 @@
     "scripts": {
         "optimize": "node optimize-epub.js",
         "optimize:keep": "KEEP_TEMP=true node optimize-epub.js",
-        "fix": "node scripts/fix_span_tags.js && node scripts/fix_xml.js",
+        "fix": "node scripts/fix/fix_span_tags.js && node scripts/fix/fix_xml.js",
         "create-epub": "node scripts/create_epub.js",
         "validate": "node scripts/validate_epub.js",
         "build": "node scripts/build.js",
-        "cleanup": "rm -rf temp_epub fixed_mybook.epub",
+        "cleanup": "rm -rf temp_epub fixed_*.epub",
         "build-clean": "node scripts/build-clean.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "biome check .",

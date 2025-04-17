@@ -1,7 +1,11 @@
+// This script fixes the XML/XHTML files.
+// It is used to fix the XML/XHTML files after the book is built.
+// There were some issues like <br> tags that were not self-closed or invalid tags.
+
 const fs = require("fs-extra");
-const path = require("path");
+const path = require("node:path");
 const cheerio = require("cheerio");
-const config = require("../src/utils/config");
+const config = require("../../src/utils/config");
 
 // Properly format self-closing tags in XML/XHTML files
 function fixXml(originalContent) {
@@ -65,7 +69,7 @@ function fixXml(originalContent) {
 }
 
 // Get the extraction directory from config
-const extractedDir = path.join(__dirname, "..", config.tempDir);
+const extractedDir = path.join(process.cwd(), config.tempDir);
 const opsDir = path.join(extractedDir, "OPS");
 
 // Verify the directory exists

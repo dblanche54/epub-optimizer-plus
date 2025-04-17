@@ -1,3 +1,18 @@
+# About This Project
+
+I use this project to optimize EPUB files that I create using Pages on Mac. My workflow is:
+
+- Write (text and images) in Pages.
+- Insert a TOC page via the menu: "Insert > Table of Contents > Document". (In the script, I update the generated `epb.opf` and `toc.xhtml` files to add the book cover as a clickable item in the summary.)
+- Export my work as an EPUB file.
+- Fill in the required information.
+- For "Cover": check the option "Use the first page as the book cover image".
+- For "Layout": check the reflowable option, and check both "Use table of contents" and "Embed fonts".
+
+After exporting, my original EPUB file is about 24.4MB. I use this script to optimize it (resulting in about 7.3MB). Then I test the result in Apple Books, Kindle Previewer, etc.
+
+This script is designed for this workflow (I don't use any other tools), but anyone who wants to optimize their EPUB file is welcome to try it! If you have any questions or issues, let me know. Enjoy! :)
+
 # EPUB Optimizer
 
 A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and recompressing the archive. This tool can significantly reduce EPUB file sizes while maintaining compatibility with e-readers and ensuring EPUB specification compliance.
@@ -10,14 +25,16 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 - Archive recompression (more efficient zip packaging)
 - EPUB validation against the EPUB specification
 - XML/XHTML validation fixing (automatically repairs common validation issues)
+- Modular fix scripts for EPUB and OPF structure
 - Command-line interface with customizable options
 - File size comparison reporting
 - Modern code linting and formatting with Biome
 
 ## Requirements
 
-- Node.js 14 or higher
-- Java Runtime Environment (JRE) 1.7 or higher (for EPUBCheck validation)
+- Node.js 14 or higher (my version: v23.11.0)
+- Java Runtime Environment (JRE) 1.7 or higher (my version: openjdk 23.0.2)
+- pnpm (my version: 9.5.0)
 - npm or pnpm for package management
 
 ## Installation
@@ -53,15 +70,7 @@ This tool requires EPUBCheck to validate EPUB files. Follow these steps:
 1. Download EPUBCheck from the [official website](https://www.w3.org/publishing/epubcheck/)
 2. Extract the downloaded zip file
 3. Copy the extracted `epubcheck-x.x.x` folder (where x.x.x is the version) to the root of this project
-4. Make sure the folder is named `epubcheck-5.2.1` to match the path in package.json
-
-### File Placement
-
-When using the default configuration:
-
-1. Place your EPUB file (e.g., `mybook.epub`) at the root of the project
-2. The optimized output will be created as `mybook_opt.epub` in the root directory
-3. If you want to use different file names, use the command line options (see below)
+4. Make sure the folder is named `epubcheck` to match the path in `epubcheckPath` in src/utils/config.js
 
 ## Usage
 
@@ -149,13 +158,20 @@ epub-optimizer/
 ├── optimize-epub.js         # Main entry point
 ├── package.json             # Package configuration
 ├── README.md                # Documentation
-├── epubcheck-5.2.1/         # EPUBCheck for EPUB validation
+├── epubcheck/               # EPUBCheck for EPUB validation (not included in repo, see 'EPUBCheck Setup' below)
 ├── scripts/                 # Helper scripts
 │   ├── build.js             # Full optimization pipeline script
 │   ├── build-clean.js       # Full pipeline with cleanup script
 │   ├── create_epub.js       # EPUB packaging script
-│   ├── fix_xml.js           # Fixes XML/XHTML validation issues
-│   ├── fix_span_tags.js     # Fixes span tag validation issues
+│   │   └── index.js         # Entry point for all general fixes
+│   ├── fix/                 # General fix scripts (modular)
+│   │   ├── fix_span_tags.js
+│   │   ├── fix_xml.js
+│   │   └── index.js         # Entry point for all general fixes
+│   ├── opf/                 # OPF-specific modifications (fixes, options, or features)
+│   │   ├── add_cover_image_property.js
+│   │   ├── update_cover_linear.js
+│   │   └── update_opf.js    # Entry point for all OPF fixes
 │   └── validate_epub.js     # EPUB validation script
 └── src/                     # Source code directory
     ├── index.js             # Main application logic
@@ -168,20 +184,23 @@ epub-optimizer/
         └── config.js        # Application configuration
 ```
 
+## Modular Fix Scripts
+
+- **General fixes** (e.g. span tags, XML/XHTML) are managed in `scripts/fix/` and run via `scripts/fix/index.js`.
+- **OPF-specific modifications** (fixes, options, or features) are managed in `scripts/opf/` and run via `scripts/opf/update_opf.js`.
+- To enable/disable a fix, comment or uncomment the relevant `execSync` line in the corresponding index/entry file.
+- To add a new fix, create a new script in the appropriate folder and add an `execSync` call in the index/entry file.
+
 ## Troubleshooting
 
 ### Common Issues
 
 1. **"Error: Unable to access jarfile"**: Make sure Java is installed and EPUBCheck is properly set up in the project root.
-
 2. **XML/XHTML Validation Errors**: If validation fails after optimization, try running the fix script manually:
-
    ```
    pnpm fix
    ```
-
 3. **Missing Dependencies**: If you get module not found errors, ensure you've run `pnpm install` or `npm install`.
-
 4. **Large Files**: For very large EPUB files, you might need to increase Node.js memory:
    ```
    NODE_OPTIONS=--max-old-space-size=4096 pnpm build

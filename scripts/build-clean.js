@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-const { execSync } = require("child_process");
-const path = require("path");
 const { execSync } = require("node:child_process");
 const path = require("node:path");
 
@@ -24,8 +22,10 @@ try {
   });
 
   console.log("Running fix scripts");
-  execSync("node scripts/fix_span_tags.js", { stdio: "inherit" });
-  execSync("node scripts/fix_xml.js", { stdio: "inherit" });
+  execSync("node scripts/fix/index.js", { stdio: "inherit" });
+
+  console.log("Running OPF update script");
+  execSync("node scripts/opf/update_opf.js", { stdio: "inherit" });
 
   console.log(`Creating EPUB with arguments: ${args}`);
   execSync(`node scripts/create_epub.js ${args}`, { stdio: "inherit" });

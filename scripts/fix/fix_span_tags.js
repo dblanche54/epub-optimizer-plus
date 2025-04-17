@@ -1,10 +1,14 @@
+// This script fixes the span tags in the XHTML files.
+// It is used to fix the span tags in the XHTML files after the book is built.
+// There were some issues like <span> tags that were not closed.
+
 const fs = require("fs-extra");
-const path = require("path");
+const path = require("node:path");
 const cheerio = require("cheerio");
-const config = require("../src/utils/config");
+const config = require("../../src/utils/config");
 
 // Get the extraction directory from config
-const extractedDir = path.join(__dirname, "..", config.tempDir);
+const extractedDir = path.join(process.cwd(), config.tempDir);
 const opsDir = path.join(extractedDir, "OPS");
 
 // Verify the directory exists
