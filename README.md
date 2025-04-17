@@ -156,39 +156,39 @@ Examples:
 
 ```
 epub-optimizer/
-├── optimize-epub.js         # Main entry point
+├── optimize-epub.ts         # Main entry point
 ├── package.json             # Package configuration
 ├── README.md                # Documentation
 ├── epubcheck/               # EPUBCheck for EPUB validation (not included in repo, see 'EPUBCheck Setup' below)
 ├── scripts/                 # Helper scripts
-│   ├── build.js             # Full optimization pipeline script
-│   ├── build-clean.js       # Full pipeline with cleanup script
-│   ├── create-epub.js       # EPUB packaging script
-│   │   └── index.js         # Entry point for all general fixes
+│   ├── build.ts             # Full optimization pipeline script
+│   ├── build-clean.ts       # Full pipeline with cleanup script
+│   ├── create-epub.ts       # EPUB packaging script
+│   │   └── index.ts         # Entry point for all general fixes
 │   ├── fix/                 # General fix scripts (modular)
-│   │   ├── fix-span-tags.js
-│   │   ├── fix-xml.js
-│   │   └── index.js         # Entry point for all general fixes
+│   │   ├── fix-span-tags.ts
+│   │   ├── fix-xml.ts
+│   │   └── index.ts         # Entry point for all general fixes
 │   ├── opf/                 # OPF-specific modifications (fixes, options, or features)
-│   │   ├── add-cover-image-property.js
-│   │   ├── update-cover-linear.js
-│   │   └── update-opf.js    # Entry point for all OPF fixes
-│   └── validate-epub.js     # EPUB validation script
+│   │   ├── add-cover-image-property.ts
+│   │   ├── update-cover-linear.ts
+│   │   └── update-opf.ts    # Entry point for all OPF fixes
+│   └── validate-epub.ts     # EPUB validation script
 └── src/                     # Source code directory
-    ├── index.js             # Main application logic
-    ├── cli.js               # Command-line interface
+    ├── index.ts             # Main application logic
+    ├── cli.ts               # Command-line interface
     ├── processors/          # Processing modules
-    │   ├── archive-processor.js  # EPUB extraction/compression
-    │   ├── html-processor.js     # HTML/CSS processing
-    │   └── image-processor.js    # Image optimization
+    │   ├── archive-processor.ts  # EPUB extraction/compression
+    │   ├── html-processor.ts     # HTML/CSS processing
+    │   └── image-processor.ts    # Image optimization
     └── utils/               # Utility modules
-        └── config.js        # Application configuration
+        └── config.ts        # Application configuration
 ```
 
 ## Modular Fix Scripts
 
-- **General fixes** (e.g. span tags, XML/XHTML) are managed in `scripts/fix/` and run via `scripts/fix/index.js`.
-- **OPF-specific modifications** (fixes, options, or features) are managed in `scripts/opf/` and run via `scripts/opf/update-opf.js`.
+- **General fixes** (e.g. span tags, XML/XHTML) are managed in `scripts/fix/` and run via `scripts/fix/index.ts`.
+- **OPF-specific modifications** (fixes, options, or features) are managed in `scripts/opf/` and run via `scripts/opf/update-opf.ts`.
 - To enable/disable a fix, comment or uncomment the relevant `execSync` line in the corresponding index/entry file.
 - To add a new fix, create a new script in the appropriate folder and add an `execSync` call in the index/entry file.
 

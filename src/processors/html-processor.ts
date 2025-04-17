@@ -1,15 +1,15 @@
-const fs = require("fs-extra");
-const path = require("path");
-const { minify } = require("html-minifier-terser");
-const CleanCSS = require("clean-css");
-const cheerio = require("cheerio");
-const config = require("../utils/config");
+import fs from "fs-extra";
+import path from "node:path";
+import { minify } from "html-minifier-terser";
+import CleanCSS from "clean-css";
+import * as cheerio from "cheerio";
+import config from "../utils/config.ts";
 
 /**
  * Process HTML and CSS files in a directory
- * @param {string} dir - Directory to process
+ * @param dir Directory to process
  */
-async function processHTML(dir) {
+async function processHTML(dir: string): Promise<void> {
   const entries = await fs.readdir(dir);
 
   for (const entry of entries) {
@@ -28,9 +28,9 @@ async function processHTML(dir) {
 
 /**
  * Minify HTML file using cheerio and html-minifier-terser
- * @param {string} filePath - Path to HTML file
+ * @param filePath Path to HTML file
  */
-async function minifyHTML(filePath) {
+async function minifyHTML(filePath: string): Promise<void> {
   const content = await fs.readFile(filePath, "utf8");
   // Use cheerio for DOM manipulation (if needed)
   const $ = cheerio.load(content, { xmlMode: filePath.endsWith(".xhtml") });
@@ -42,14 +42,12 @@ async function minifyHTML(filePath) {
 
 /**
  * Minify CSS file
- * @param {string} filePath - Path to CSS file
+ * @param filePath Path to CSS file
  */
-async function minifyCSS(filePath) {
+async function minifyCSS(filePath: string): Promise<void> {
   const content = await fs.readFile(filePath, "utf8");
   const minified = new CleanCSS(config.cssOptions).minify(content).styles;
   await fs.writeFile(filePath, minified);
 }
 
-module.exports = {
-  processHTML,
-};
+export { processHTML };

@@ -3,4 +3,4 @@
 // This is the main entry point for the EPUB optimizer
 // It just loads the main module from the src directory
 
-require("./src/index");
+import "./src/index.ts";

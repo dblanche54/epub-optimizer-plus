@@ -1,10 +1,10 @@
 // Allow to set cover image as linear. It means that the cover image will be displayed
 // on the first page of the book.
 
-const fs = require("fs-extra");
-const path = require("node:path");
-const cheerio = require("cheerio");
-const config = require("../../src/utils/config");
+import fs from "fs-extra";
+import path from "node:path";
+import * as cheerio from "cheerio";
+import config from "../../src/utils/config.ts";
 
 const extractedDir = path.join(process.cwd(), config.tempDir);
 const opsDir = path.join(extractedDir, "OPS");
@@ -16,9 +16,7 @@ if (!fs.existsSync(opfFile)) {
 }
 
 try {
-  console.log(
-    `Ensuring <itemref idref=\"cover\" linear=\"yes\"/> in: ${opfFile}`
-  );
+  console.log(`Ensuring <itemref idref="cover" linear="yes"/> in: ${opfFile}`);
   const content = fs.readFileSync(opfFile, "utf8");
   const $ = cheerio.load(content, { xmlMode: true, decodeEntities: false });
   const coverRef = $('itemref[idref="cover"]');
@@ -30,5 +28,9 @@ try {
     console.log("Warning: Could not find cover reference in spine");
   }
 } catch (error) {
-  console.error(`Error updating cover reference: ${error.message}`);
+  if (error instanceof Error) {
+    console.error(`Error updating cover reference: ${error.message}`);
+  } else {
+    console.error("Unknown error updating cover reference", error);
+  }
 }

@@ -2,10 +2,10 @@
 // It is used to fix the span tags in the XHTML files after the book is built.
 // There were some issues like <span> tags that were not closed.
 
-const fs = require("fs-extra");
-const path = require("node:path");
-const cheerio = require("cheerio");
-const config = require("../../src/utils/config");
+import fs from "fs-extra";
+import path from "node:path";
+import * as cheerio from "cheerio";
+import config from "../../src/utils/config.ts";
 
 // Get the extraction directory from config
 const extractedDir = path.join(process.cwd(), config.tempDir);
@@ -27,10 +27,10 @@ if (!fs.existsSync(opsDir)) {
 }
 
 // Get all chapter XHTML files
-const xhtmlFiles = fs
+const xhtmlFiles: string[] = fs
   .readdirSync(opsDir)
-  .filter((file) => file.endsWith(".xhtml"))
-  .map((file) => path.join(opsDir, file));
+  .filter((file: string) => file.endsWith(".xhtml"))
+  .map((file: string) => path.join(opsDir, file));
 
 // Fix each file
 for (const file of xhtmlFiles) {
@@ -41,10 +41,10 @@ for (const file of xhtmlFiles) {
     const $ = cheerio.load(content, { xmlMode: true });
     // Example: fix span tags in h1
     const h1 = $("h1");
-    h1.each((_, el) => {
+    h1.each((_: number, el: cheerio.Element) => {
       const $el = $(el);
       // Fix unclosed/invalid span tags in heading content
-      $el.find("span").each((_, span) => {
+      $el.find("span").each((_: number, span: cheerio.Element) => {
         // Example fix: ensure all spans are closed
         // (cheerio auto-closes tags, so just serialize)
       });

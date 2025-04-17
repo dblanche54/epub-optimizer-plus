@@ -1,14 +1,14 @@
-const fs = require("fs-extra");
-const path = require("path");
-const sharp = require("sharp");
+import fs from "fs-extra";
+import path from "node:path";
+import sharp from "sharp";
 // Using dynamic imports for all imagemin-related modules
-const config = require("../utils/config");
+import config from "../utils/config.ts";
 
 /**
  * Optimize images in a directory recursively
- * @param {string} dir - Directory containing images
+ * @param dir Directory containing images
  */
-async function optimizeImages(dir) {
+async function optimizeImages(dir: string): Promise<void> {
   const entries = await fs.readdir(dir);
 
   for (const entry of entries) {
@@ -25,9 +25,9 @@ async function optimizeImages(dir) {
 
 /**
  * Compress a single image using Sharp
- * @param {string} imagePath - Path to image file
+ * @param imagePath Path to image file
  */
-async function compressImage(imagePath) {
+async function compressImage(imagePath: string): Promise<void> {
   try {
     const extension = path.extname(imagePath).toLowerCase();
     const imageBuffer = await fs.readFile(imagePath);
@@ -102,12 +102,17 @@ async function compressImage(imagePath) {
       );
     }
   } catch (error) {
-    console.error(
-      `⚠️ Error processing ${path.basename(imagePath)}: ${error.message}`
-    );
+    if (error instanceof Error) {
+      console.error(
+        `⚠️ Error processing ${path.basename(imagePath)}: ${error.message}`
+      );
+    } else {
+      console.error(
+        `⚠️ Unknown error processing ${path.basename(imagePath)}`,
+        error
+      );
+    }
   }
 }
 
-module.exports = {
-  optimizeImages,
-};
+export { optimizeImages };

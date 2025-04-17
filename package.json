@@ -2,19 +2,21 @@
     "name": "epub-optimizer",
     "version": "1.0.0",
     "description": "EPUB optimization script to compress HTML, CSS, images and recompress the archive",
-    "main": "optimize-epub.js",
+    "main": "optimize-epub.ts",
     "bin": {
-        "epub-optimize": "./optimize-epub.js"
+        "epub-optimize": "ts-node optimize-epub.ts"
     },
     "scripts": {
-        "optimize": "node optimize-epub.js",
-        "optimize:keep": "KEEP_TEMP=true node optimize-epub.js",
-        "fix": "node scripts/fix/fix_span_tags.js && node scripts/fix/fix_xml.js",
-        "create-epub": "node scripts/create_epub.js",
-        "validate": "node scripts/validate_epub.js",
-        "build": "node scripts/build.js",
+        "start": "ts-node src/index.ts",
+        "cli": "ts-node src/cli.ts",
+        "build": "ts-node scripts/build.ts",
+        "optimize": "ts-node optimize-epub.ts",
+        "optimize:keep": "KEEP_TEMP=true ts-node optimize-epub.ts",
+        "fix": "ts-node scripts/fix/fix-span-tags.ts && ts-node scripts/fix/fix-xml.ts",
+        "create-epub": "ts-node scripts/create-epub.ts",
+        "validate": "ts-node scripts/validate-epub.ts",
         "cleanup": "rm -rf temp_epub fixed_*.epub",
-        "build-clean": "node scripts/build-clean.js",
+        "build-clean": "ts-node scripts/build-clean.ts",
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "biome check .",
         "format": "biome format ."
@@ -43,6 +45,14 @@
         "ebook"
     ],
     "devDependencies": {
-        "@biomejs/biome": "^1.9.4"
+        "@biomejs/biome": "^1.9.4",
+        "@types/cheerio": "^0.22.35",
+        "@types/clean-css": "^4.2.11",
+        "@types/fs-extra": "^11.0.4",
+        "@types/node": "^22.14.1",
+        "@types/unzipper": "^0.10.11",
+        "@types/yargs": "^17.0.33",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.3"
     }
 }

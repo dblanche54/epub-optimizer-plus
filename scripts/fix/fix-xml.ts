@@ -2,13 +2,13 @@
 // It is used to fix the XML/XHTML files after the book is built.
 // There were some issues like <br> tags that were not self-closed or invalid tags.
 
-const fs = require("fs-extra");
-const path = require("node:path");
-const cheerio = require("cheerio");
-const config = require("../../src/utils/config");
+import fs from "fs-extra";
+import path from "node:path";
+import * as cheerio from "cheerio";
+import config from "../../src/utils/config.ts";
 
 // Properly format self-closing tags in XML/XHTML files
-function fixXml(originalContent) {
+function fixXml(originalContent: string) {
   // Remove all </br> tags (invalid in XHTML)
   let processedContent = originalContent.replace(/<\/br>/gi, "");
   // Convert all <br> to <br/> (self-closing)
@@ -27,7 +27,11 @@ function fixXml(originalContent) {
   $("script").remove();
 
   // Only keep <meta> tags that are direct children of <head>
-  $("meta").each((_, el) => {
+  $("meta").each(function (
+    this: cheerio.Element,
+    _: number,
+    el: cheerio.Element
+  ) {
     const parent = $(el).parent();
     if (!parent.is("head")) {
       $(el).remove();
@@ -37,7 +41,7 @@ function fixXml(originalContent) {
   // Remove any text nodes that are direct children of <html> (including whitespace)
   $("html")
     .contents()
-    .filter(function () {
+    .filter(function (this: any) {
       return (
         (this.type === "text" && $(this).text().trim().length === 0) ||
         (this.type === "text" && $(this).text().trim().length > 0)
@@ -48,19 +52,27 @@ function fixXml(originalContent) {
   // Remove any text nodes that are direct children of <body> (not allowed)
   $("body")
     .contents()
-    .filter(function () {
+    .filter(function (this: any) {
       return this.type === "text" && $(this).text().trim().length > 0;
     })
     .remove();
 
   // Example: ensure all <br> tags are self-closed
-  $("br").each((_, el) => {
+  $("br").each(function (
+    this: cheerio.Element,
+    _: number,
+    el: cheerio.Element
+  ) {
     // cheerio with xmlMode will output <br/>
   });
   // Example: ensure all <meta>, <link>, <img>, <input>, <hr> are self-closed
   const selfClosingTags = ["meta", "link", "img", "input", "hr"];
   for (const tag of selfClosingTags) {
-    $(tag).each((_, el) => {
+    $(tag).each(function (
+      this: cheerio.Element,
+      _: number,
+      el: cheerio.Element
+    ) {
       // cheerio with xmlMode will output self-closed tags
     });
   }
@@ -88,10 +100,10 @@ if (!fs.existsSync(opsDir)) {
 }
 
 // Get all XHTML files
-const xhtmlFiles = fs
+const xhtmlFiles: string[] = fs
   .readdirSync(opsDir)
-  .filter((file) => file.endsWith(".xhtml"))
-  .map((file) => path.join(opsDir, file));
+  .filter((file: string) => file.endsWith(".xhtml"))
+  .map((file: string) => path.join(opsDir, file));
 
 // Fix each file
 for (const file of xhtmlFiles) {

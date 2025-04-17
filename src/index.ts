@@ -1,15 +1,16 @@
-const fs = require("fs-extra");
-const { parseArguments } = require("./cli");
-const { extractEPUB, compressEPUB } = require("./processors/archive-processor");
-const { processHTML } = require("./processors/html-processor");
-const { optimizeImages } = require("./processors/image-processor");
+import fs from "fs-extra";
+import { parseArguments } from "./cli.ts";
+import { extractEPUB, compressEPUB } from "./processors/archive-processor.ts";
+import { processHTML } from "./processors/html-processor.ts";
+import { optimizeImages } from "./processors/image-processor.ts";
+import type { Args } from "./types.ts";
 
 /**
  * Main function to optimize an EPUB file
  */
 async function optimizeEPUB() {
   // Parse command line arguments
-  const args = parseArguments();
+  const args = (await parseArguments()) as Args;
 
   try {
     // 1. Extract EPUB file
@@ -55,17 +56,21 @@ async function optimizeEPUB() {
     )} saved)
     `);
   } catch (error) {
-    console.error(`❌ Error: ${error.message}`);
+    if (error instanceof Error) {
+      console.error(`❌ Error: ${error.message}`);
+    } else {
+      console.error("❌ Unknown error", error);
+    }
     process.exit(1);
   }
 }
 
 /**
  * Format file size in human readable format
- * @param {number} bytes - File size in bytes
- * @returns {string} Formatted file size
+ * @param bytes File size in bytes
+ * @returns Formatted file size
  */
-function formatFileSize(bytes) {
+function formatFileSize(bytes: number): string {
   const units = ["B", "KB", "MB", "GB"];
   let size = bytes;
   let unitIndex = 0;
@@ -80,6 +85,10 @@ function formatFileSize(bytes) {
 
 // Run the optimizer
 optimizeEPUB().catch((error) => {
-  console.error(`❌ Unhandled error: ${error.message}`);
+  if (error instanceof Error) {
+    console.error(`❌ Unhandled error: ${error.message}`);
+  } else {
+    console.error("❌ Unhandled unknown error", error);
+  }
   process.exit(1);
 });

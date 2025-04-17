@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
   // Default file paths
   inputEPUB: "mybook.epub",
   fixedEPUB: "fixed_mybook.epub",
@@ -35,3 +35,5 @@ module.exports = {
   // EPUBCheck path
   epubcheckPath: "epubcheck/epubcheck.jar",
 };
+
+export default config;
