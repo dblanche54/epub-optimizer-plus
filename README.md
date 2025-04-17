@@ -77,18 +77,13 @@ This tool requires EPUBCheck to validate EPUB files. Follow these steps:
 
 ### Scripts
 
-The project includes the following scripts (see also the `package.json`):
+The project includes the following scripts:
 
-| Script          | Description                                                      |
-| --------------- | ---------------------------------------------------------------- |
-| `build`         | Full pipeline: optimize, fix, repackage, validate                |
-| `build:clean`   | Full pipeline with temporary file cleanup                        |
-| `optimize`      | Optimize the EPUB file (compression, minification, etc.)         |
-| `optimize:keep` | Optimize and keep temp files for debugging                       |
-| `fix`           | Run all fix scripts on extracted files (fixes validation issues) |
-| `create-epub`   | Repackage EPUB from temp directory                               |
-| `validate`      | Validate EPUB with EPUBCheck                                     |
-| `cleanup`       | Remove temp and intermediate files                               |
+| Script        | Description                                       |
+| ------------- | ------------------------------------------------- |
+| `build`       | Full pipeline: optimize, fix, repackage, validate |
+| `build:clean` | Full pipeline with temporary file cleanup         |
+| `cleanup`     | Remove temp and intermediate files                |
 
 ### Basic Usage
 
@@ -100,34 +95,26 @@ pnpm build
 pnpm build -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
 
 # Optimize, fix, validate and clean up temporary files
-pnpm cleanup
+pnpm build:clean
 
 # Optimize, fix, validate, clean up with custom input/output
 pnpm build:clean -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
 
-# Validate a specific EPUB file (dynamic)
-pnpm validate -o /path/to/output/mybook_optimized.epub
-
-# Individual steps
-pnpm optimize        # Only compress the EPUB file
-pnpm fix             # Fix XML/XHTML validation issues
-pnpm validate        # Check EPUB validity (uses the correct output file if -o is provided)
+# Just clean up temporary files
+pnpm cleanup
 ```
 
 ### Advanced Usage Examples
 
 ```bash
 # Process a file with a specific name
-pnpm optimize -- -i mynovel.epub -o mynovel_optimized.epub
+pnpm build -- -i mynovel.epub -o mynovel_optimized.epub
 
 # Specify custom JPEG quality (higher quality, larger file)
-pnpm optimize -- --jpg-quality 85
-
-# Keep temporary files for inspection
-pnpm optimize:keep
+pnpm build -- --jpg-quality 85
 
 # Process files in another location
-pnpm optimize -- -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
+pnpm build -- -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
 ```
 
 ### Command Line Options
