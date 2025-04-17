@@ -24,9 +24,7 @@ async function optimizeImages(dir: string): Promise<void> {
     }
   } catch (error) {
     console.error(
-      `Error processing directory ${dir}: ${
-        error instanceof Error ? error.message : String(error)
-      }`
+      `Error processing directory ${dir}: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }
@@ -54,7 +52,6 @@ async function compressImage(imagePath: string): Promise<void> {
     }
 
     let processedImage = sharp(imageBuffer);
-    const metadata = await processedImage.metadata();
 
     // Configure compression based on file type
     switch (extension) {
@@ -103,19 +100,14 @@ async function compressImage(imagePath: string): Promise<void> {
 
     // Log optimization result
     const newSize = (await fs.stat(imagePath)).size;
-    const savings = (
-      ((imageBuffer.length - newSize) / imageBuffer.length) *
-      100
-    ).toFixed(1);
+    const savings = (((imageBuffer.length - newSize) / imageBuffer.length) * 100).toFixed(1);
 
     if (newSize < imageBuffer.length) {
       console.log(`💾 Optimized ${filename}: ${savings}% smaller`);
     }
   } catch (error) {
     console.error(
-      `⚠️ Error processing ${filename}: ${
-        error instanceof Error ? error.message : String(error)
-      }`
+      `⚠️ Error processing ${filename}: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }

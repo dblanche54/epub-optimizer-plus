@@ -1,7 +1,7 @@
-const fs = require("fs-extra");
-const path = require("node:path");
-const cheerio = require("cheerio");
-const config = require("../../src/utils/config");
+import fs from "fs-extra";
+import path from "node:path";
+import * as cheerio from "cheerio";
+import config from "../../src/utils/config.ts";
 
 // Define paths clearly
 const extractedDir = path.join(process.cwd(), config.tempDir);
@@ -15,9 +15,7 @@ if (!fs.existsSync(opfFile)) {
 }
 
 try {
-  console.log(
-    `Adding properties="cover-image" to cover-image item in: ${opfFile}`
-  );
+  console.log(`Adding properties="cover-image" to cover-image item in: ${opfFile}`);
 
   // Read and parse OPF file
   const content = fs.readFileSync(opfFile, "utf8");

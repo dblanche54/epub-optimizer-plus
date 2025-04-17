@@ -14,15 +14,22 @@ export interface CommandArgs {
 }
 
 /**
+ * Info about the input file
+ */
+export interface InputFileInfo {
+  inputFile: string;
+  inputBasename: string;
+  fixedFile: string;
+  args: string;
+}
+
+/**
  * Parse command line arguments consistently across all scripts
  * @param includeInputOption Whether to include input option
  * @param includeOutputOption Whether to include output option
  * @returns Parsed args object
  */
-export function parseArgs(
-  includeInputOption = true,
-  includeOutputOption = true
-): CommandArgs {
+export function parseArgs(includeInputOption = true, includeOutputOption = true): CommandArgs {
   const parser = yargs(hideBin(process.argv));
 
   if (includeInputOption) {
@@ -50,7 +57,7 @@ export function parseArgs(
  * Get input file name from command line args
  * @returns Input file name and basename
  */
-export function getInputFileInfo() {
+export function getInputFileInfo(): InputFileInfo {
   const args = process.argv.slice(2).join(" ");
   let inputFile = config.inputEPUB; // Default value
   const inputArg = args.match(/-i\s+([^\s]+)/);
@@ -67,7 +74,7 @@ export function getInputFileInfo() {
  * Standard error handler for scripts
  * @param error The error to handle
  */
-export function handleError(error: unknown) {
+export function handleError(error: unknown): never {
   if (error instanceof Error) {
     console.error(`Error: ${error.message}`);
   } else {
@@ -81,10 +88,7 @@ export function handleError(error: unknown) {
  * @param command The command to run
  * @param options Options for the command
  */
-export function runCommand(
-  command: string,
-  options = { stdio: "inherit" as const }
-) {
+export function runCommand(command: string, options = { stdio: "inherit" as const }): void {
   try {
     execSync(command, options);
   } catch (error) {

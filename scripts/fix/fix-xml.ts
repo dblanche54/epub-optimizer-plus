@@ -12,13 +12,10 @@ function fixXml(originalContent: string) {
   // Remove all </br> tags (invalid in XHTML)
   let processedContent = originalContent.replace(/<\/br>/gi, "");
   // Convert all <br> to <br/> (self-closing)
-  processedContent = processedContent.replace(/<br(?![\w\/])/gi, "<br/");
+  processedContent = processedContent.replace(/<br(?![a-zA-Z0-9/])/gi, "<br/");
 
   // Ensure XML declaration is immediately followed by <html>
-  processedContent = processedContent.replace(
-    /(<\?xml[^>]+>)[\s\r\n]+<html/,
-    "$1<html"
-  );
+  processedContent = processedContent.replace(/(<\?xml[^>]+>)[\s\r\n]+<html/, "$1<html");
 
   // Use cheerio for DOM manipulation
   const $ = cheerio.load(processedContent, { xmlMode: true });
@@ -27,11 +24,7 @@ function fixXml(originalContent: string) {
   $("script").remove();
 
   // Only keep <meta> tags that are direct children of <head>
-  $("meta").each(function (
-    this: cheerio.Element,
-    _: number,
-    el: cheerio.Element
-  ) {
+  $("meta").each(function (this: cheerio.Element, _: number, el: cheerio.Element) {
     const parent = $(el).parent();
     if (!parent.is("head")) {
       $(el).remove();
@@ -65,9 +58,7 @@ const opsDir = path.join(extractedDir, "OPS");
 // Verify the directory exists
 if (!fs.existsSync(extractedDir)) {
   console.error(`Error: Directory ${extractedDir} does not exist.`);
-  console.error(
-    "Please run the optimization script first to extract the EPUB."
-  );
+  console.error("Please run the optimization script first to extract the EPUB.");
   process.exit(1);
 }
 

@@ -45,17 +45,13 @@ function parseArguments(): Promise<Args> {
         type: "array",
         default: config.pngOptions.quality,
       })
-      .example(
-        "$0 -i book.epub -o book-optimized.epub",
-        "Optimize a specific EPUB file"
-      )
+      .example("$0 -i book.epub -o book-optimized.epub", "Optimize a specific EPUB file")
       .help()
       .alias("help", "h")
       .version()
       .alias("version", "v")
-      .epilog(
-        "For more information visit https://github.com/kiki-le-singe/epub-optimizer"
-      ).argv as unknown as Args
+      .epilog("For more information visit https://github.com/kiki-le-singe/epub-optimizer")
+      .argv as unknown as Args
   );
 }
 

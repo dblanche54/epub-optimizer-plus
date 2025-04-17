@@ -218,7 +218,8 @@ If you encounter issues not covered in this documentation, please [open an issue
 - unzipper - For extracting EPUB files
 - yargs - For command-line argument parsing
 - epubcheck - For EPUB validation (external dependency)
-- @biomejs/biome - For linting and formatting (dev dependency)
+- eslint - For code linting with TypeScript support (dev dependency)
+- prettier - For code formatting (dev dependency)
 
 ## License
 

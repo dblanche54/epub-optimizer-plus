@@ -7,8 +7,5 @@ declare module "html-minifier-terser" {
     [key: string]: boolean | string | number | undefined;
   }
 
-  export function minify(
-    html: string,
-    options?: MinifyOptions
-  ): Promise<string>;
+  export function minify(html: string, options?: MinifyOptions): Promise<string>;
 }

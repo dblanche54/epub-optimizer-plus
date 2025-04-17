@@ -15,7 +15,7 @@ const argv = yargs(hideBin(process.argv))
   .version(false).argv as { clean: boolean };
 
 // Get input file info and args
-const { inputFile, fixedFile, args } = getInputFileInfo();
+const { fixedFile, args } = getInputFileInfo();
 
 try {
   console.log(`Running optimize with arguments: ${args}`);

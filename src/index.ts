@@ -46,9 +46,7 @@ async function optimizeEPUB() {
       await fs.remove(args.temp);
       console.log(`🧹 Removed temporary directory: ${args.temp}`);
     } else {
-      console.log(
-        `📁 Kept temporary directory: ${args.temp} for post-processing`
-      );
+      console.log(`📁 Kept temporary directory: ${args.temp} for post-processing`);
     }
 
     // Report file size comparison
@@ -84,7 +82,7 @@ async function reportFileSizeComparison(
    Optimized: ${formatFileSize(optimizedSize)}
    Reduction: ${reduction.toFixed(2)}% (${formatFileSize(bytesSaved)} saved)
     `);
-  } catch (error) {
+  } catch {
     console.error("⚠️ Could not generate file size comparison");
   }
 }
