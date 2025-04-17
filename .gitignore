@@ -6,7 +6,7 @@ temp_epub/
 extracted/
 
 # EPUB CHECK files
-epubcheck-*/
+epubcheck/
 
 # EPUB files
 *.epub
