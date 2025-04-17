@@ -1,9 +1,12 @@
+// Allow to set cover image as linear. It means that the cover image will be displayed
+// on the first page of the book.
+
 const fs = require("fs-extra");
 const path = require("node:path");
 const cheerio = require("cheerio");
-const config = require("../src/utils/config");
+const config = require("../../src/utils/config");
 
-const extractedDir = path.join(__dirname, "..", config.tempDir);
+const extractedDir = path.join(process.cwd(), config.tempDir);
 const opsDir = path.join(extractedDir, "OPS");
 const opfFile = path.join(opsDir, "epb.opf");
 

@@ -10,6 +10,7 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 - Archive recompression (more efficient zip packaging)
 - EPUB validation against the EPUB specification
 - XML/XHTML validation fixing (automatically repairs common validation issues)
+- Modular fix scripts for EPUB and OPF structure
 - Command-line interface with customizable options
 - File size comparison reporting
 - Modern code linting and formatting with Biome
@@ -154,8 +155,15 @@ epub-optimizer/
 │   ├── build.js             # Full optimization pipeline script
 │   ├── build-clean.js       # Full pipeline with cleanup script
 │   ├── create_epub.js       # EPUB packaging script
-│   ├── fix_xml.js           # Fixes XML/XHTML validation issues
-│   ├── fix_span_tags.js     # Fixes span tag validation issues
+│   │   └── index.js         # Entry point for all general fixes
+│   ├── fix/                 # General fix scripts (modular)
+│   │   ├── fix_span_tags.js
+│   │   ├── fix_xml.js
+│   │   └── index.js         # Entry point for all general fixes
+│   ├── opf/                 # OPF-specific modifications (fixes, options, or features)
+│   │   ├── add_cover_image_property.js
+│   │   ├── update_cover_linear.js
+│   │   └── update_opf.js    # Entry point for all OPF fixes
 │   └── validate_epub.js     # EPUB validation script
 └── src/                     # Source code directory
     ├── index.js             # Main application logic
@@ -168,20 +176,23 @@ epub-optimizer/
         └── config.js        # Application configuration
 ```
 
+## Modular Fix Scripts
+
+- **General fixes** (e.g. span tags, XML/XHTML) are managed in `scripts/fix/` and run via `scripts/fix/index.js`.
+- **OPF-specific modifications** (fixes, options, or features) are managed in `scripts/opf/` and run via `scripts/opf/update_opf.js`.
+- To enable/disable a fix, comment or uncomment the relevant `execSync` line in the corresponding index/entry file.
+- To add a new fix, create a new script in the appropriate folder and add an `execSync` call in the index/entry file.
+
 ## Troubleshooting
 
 ### Common Issues
 
 1. **"Error: Unable to access jarfile"**: Make sure Java is installed and EPUBCheck is properly set up in the project root.
-
 2. **XML/XHTML Validation Errors**: If validation fails after optimization, try running the fix script manually:
-
    ```
    pnpm fix
    ```
-
 3. **Missing Dependencies**: If you get module not found errors, ensure you've run `pnpm install` or `npm install`.
-
 4. **Large Files**: For very large EPUB files, you might need to increase Node.js memory:
    ```
    NODE_OPTIONS=--max-old-space-size=4096 pnpm build
