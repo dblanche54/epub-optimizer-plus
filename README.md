@@ -17,6 +17,8 @@ This script is designed for this workflow (I don't use any other tools), but any
 
 A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and recompressing the archive. This tool can significantly reduce EPUB file sizes while maintaining compatibility with e-readers and ensuring EPUB specification compliance.
 
+![EPUB Optimizer Terminal Output](assets/epub-optimizer-demo.png)
+
 ## Features
 
 - HTML/XHTML minification (removes whitespace, comments, and unnecessary code)
