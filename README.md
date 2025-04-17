@@ -30,7 +30,6 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 - Modular fix scripts for EPUB and OPF structure
 - Command-line interface with customizable options
 - File size comparison reporting
-- Modern code linting and formatting with Biome
 
 ## Requirements
 
