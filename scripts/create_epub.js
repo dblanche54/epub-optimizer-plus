@@ -1,6 +1,6 @@
-const fs = require("fs");
-const path = require("path");
-const { execSync } = require("child_process");
+const fs = require("node:fs");
+const path = require("node:path");
+const { execSync } = require("node:child_process");
 const config = require("../src/utils/config");
 const yargs = require("yargs/yargs");
 const { hideBin } = require("yargs/helpers");
