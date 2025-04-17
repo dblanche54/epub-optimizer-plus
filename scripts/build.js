@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { execSync } = require("child_process");
+const { execSync } = require("node:child_process");
 
 // Prepare arguments for subprocess
 const args = process.argv.slice(2).join(" ");

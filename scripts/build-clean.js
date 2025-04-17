@@ -2,6 +2,8 @@
 
 const { execSync } = require("child_process");
 const path = require("path");
+const { execSync } = require("node:child_process");
+const path = require("node:path");
 
 // Prepare arguments for subprocess
 const args = process.argv.slice(2).join(" ");
