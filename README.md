@@ -75,11 +75,11 @@ The project includes the following scripts:
 ### Basic Usage
 
 ```bash
-# Complete optimization with custom input/output
-pnpm build -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
+# Optimize a book with default settings
+pnpm build -i mybook.epub -o mybook_optimized.epub
 
-# Optimize, fix, validate, clean up with custom input/output
-pnpm build:clean -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
+# Optimize and clean up temporary files
+pnpm build:clean -i mybook.epub -o mybook_optimized.epub
 
 # Just clean up temporary files
 pnpm cleanup
@@ -88,20 +88,20 @@ pnpm cleanup
 ### Advanced Usage Examples
 
 ```bash
-# Process a file with a specific name
-pnpm build -- -i mynovel.epub -o mynovel_optimized.epub
-
 # Specify custom JPEG quality (higher quality, larger file)
-pnpm build -- -i mynovel.epub -o mynovel_optimized.epub --jpg-quality 85
+pnpm build -i mynovel.epub -o mynovel_optimized.epub --jpg-quality 85
 
-# Process files in another location
-pnpm build -- -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
+# Specify custom PNG quality (0-1 scale, higher is better quality)
+pnpm build -i mynovel.epub -o mynovel_optimized.epub --png-quality 0.8
+
+# Customize both JPEG and PNG quality
+pnpm build -i mynovel.epub -o mynovel_optimized.epub --jpg-quality 85 --png-quality 0.9
 ```
 
 ### Command Line Options
 
 ```
-Usage: npm/pnpm build -- [options]
+Usage: pnpm build [options]
 
 Options:
   -i, --input       Input EPUB file path                       [string] [default: "mybook.epub"]
@@ -109,14 +109,12 @@ Options:
   -t, --temp        Temporary directory for processing         [string] [default: "temp_epub"]
   -k, --keep-temp   Keep temporary files after processing      [boolean] [default: false]
   --jpg-quality     JPEG compression quality (0-100)           [number] [default: 70]
-  --png-quality     PNG compression quality (0-1 scale)        [array] [default: [0.6, 0.8]]
+  --png-quality     PNG compression quality (0-1 scale)        [number] [default: 0.6]
   -h, --help        Show help                                  [boolean]
   -v, --version     Show version number                        [boolean]
-
-Examples:
-  pnpm build -- -i book.epub -o book-optimized.epub                           Optimize a specific EPUB file
-  pnpm build -- -i /path/to/book.epub -0 book-optimized.epub                  Optimize a file from another directory
 ```
+
+> **Important Note:** This tool is designed to work with files in the project directory. Using absolute paths or paths outside the project directory may cause issues.
 
 ## Project Structure
 

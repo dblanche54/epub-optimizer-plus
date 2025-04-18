@@ -3,6 +3,11 @@ import path from "node:path";
 import sharp from "sharp";
 // Using dynamic imports for all imagemin-related modules
 import config from "../utils/config.ts";
+import { parseArguments } from "../cli.ts";
+
+// Store quality values from command line or config
+let jpegQuality = config.jpegOptions.quality; // Default value
+let pngQuality = config.pngOptions.quality; // Default value
 
 /**
  * Optimize images in a directory recursively
@@ -10,6 +15,25 @@ import config from "../utils/config.ts";
  */
 async function optimizeImages(dir: string): Promise<void> {
   try {
+    // Get command line arguments to check for custom quality settings
+    const args = await parseArguments();
+
+    // If jpg-quality parameter was provided, use it
+    if (args["jpg-quality"] && typeof args["jpg-quality"] === "number") {
+      jpegQuality = args["jpg-quality"];
+      console.log(`Using custom JPEG quality: ${jpegQuality}`);
+    }
+
+    // If png-quality parameter was provided, use it
+    if (
+      args["png-quality"] &&
+      Array.isArray(args["png-quality"]) &&
+      args["png-quality"].length > 0
+    ) {
+      pngQuality = args["png-quality"].map((val) => parseFloat(val.toString()));
+      console.log(`Using custom PNG quality: ${pngQuality.join(", ")}`);
+    }
+
     const entries = await fs.readdir(dir);
 
     for (const entry of entries) {
@@ -52,20 +76,22 @@ async function compressImage(imagePath: string): Promise<void> {
     }
 
     let processedImage = sharp(imageBuffer);
+    // Use the first value from the PNG quality array (0-1 scale) and convert to 0-100 scale
+    const pngQualityValue = Math.round(pngQuality[0] * 100);
 
     // Configure compression based on file type
     switch (extension) {
       case ".jpg":
       case ".jpeg":
         processedImage = processedImage.jpeg({
-          quality: config.jpegOptions.quality,
+          quality: jpegQuality, // Use jpegQuality from CLI args or config
           mozjpeg: true,
         });
         break;
 
       case ".png":
         processedImage = processedImage.png({
-          quality: Math.round(config.pngOptions.quality[0] * 100),
+          quality: pngQualityValue,
           compressionLevel: 9,
           palette: true,
         });
@@ -73,7 +99,7 @@ async function compressImage(imagePath: string): Promise<void> {
 
       case ".webp":
         processedImage = processedImage.webp({
-          quality: config.jpegOptions.quality,
+          quality: jpegQuality, // Use jpegQuality from CLI args or config
           lossless: false,
         });
         break;
@@ -84,7 +110,7 @@ async function compressImage(imagePath: string): Promise<void> {
 
       case ".avif":
         processedImage = processedImage.avif({
-          quality: config.jpegOptions.quality,
+          quality: jpegQuality, // Use jpegQuality from CLI args or config
         });
         break;
 
