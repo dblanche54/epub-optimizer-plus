@@ -28,4 +28,10 @@ pnpm-debug.log*
 
 # Coverage directories
 coverage/
-.nyc_output/ 
+.nyc_output/
+
+# ESLint
+.eslintcache
+
+# Temp folders and files
+fixed_*.epub 

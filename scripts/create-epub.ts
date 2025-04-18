@@ -27,9 +27,7 @@ const outputEpubPath = path.join(__dirname, "..", outputEpub);
 // Verify the directory exists
 if (!fs.existsSync(extractedDir)) {
   console.error(`Error: Directory ${extractedDir} does not exist.`);
-  console.error(
-    "Please run the optimization script first to extract the EPUB."
-  );
+  console.error("Please run the optimization script first to extract the EPUB.");
   process.exit(1);
 }
 
@@ -49,9 +47,7 @@ try {
 
   // Step 2: Add the rest, compressed, excluding mimetype
   console.log("Adding remaining files...");
-  execSync(
-    `cd "${extractedDir}" && zip -Xr9D "${fixedEpubPath}" . -x mimetype`
-  );
+  execSync(`cd "${extractedDir}" && zip -Xr9D "${fixedEpubPath}" . -x mimetype`);
 
   console.log(`Created ${fixedEpubName}`);
 

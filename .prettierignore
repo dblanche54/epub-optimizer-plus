@@ -1,0 +1,8 @@
+epubcheck
+node_modules
+dist
+build
+coverage
+.eslintcache
+temp_epub
+*.epub 

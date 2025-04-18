@@ -13,9 +13,7 @@ async function main() {
   // Verify the directories exist
   if (!(await fs.pathExists(extractedDir))) {
     console.error(`Error: Directory ${extractedDir} does not exist.`);
-    console.error(
-      "Please run the optimization script first to extract the EPUB."
-    );
+    console.error("Please run the optimization script first to extract the EPUB.");
     process.exit(1);
   }
 
@@ -51,4 +49,5 @@ async function fixFile(file: string) {
   }
 }
 
-main();
+// Use void operator to explicitly mark the promise as intentionally not awaited
+void main();

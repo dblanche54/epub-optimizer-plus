@@ -9,10 +9,7 @@ import { execSync } from "node:child_process";
  * @param extractDir Directory to extract contents to
  * @throws Error if extraction fails
  */
-async function extractEPUB(
-  epubPath: string,
-  extractDir: string
-): Promise<void> {
+async function extractEPUB(epubPath: string, extractDir: string): Promise<void> {
   try {
     // Ensure extract directory exists and is empty
     await fs.remove(extractDir);
@@ -25,9 +22,7 @@ async function extractEPUB(
       .promise();
   } catch (error) {
     throw new Error(
-      `Failed to extract EPUB: ${
-        error instanceof Error ? error.message : String(error)
-      }`
+      `Failed to extract EPUB: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }
@@ -43,10 +38,7 @@ async function extractEPUB(
  * @returns True if compression succeeded
  * @throws Error if compression fails
  */
-async function compressEPUB(
-  outputPath: string,
-  sourceDir: string
-): Promise<boolean> {
+async function compressEPUB(outputPath: string, sourceDir: string): Promise<boolean> {
   try {
     const absOutput = path.resolve(outputPath);
     const absSource = path.resolve(sourceDir);
@@ -67,9 +59,7 @@ async function compressEPUB(
     return true;
   } catch (error) {
     throw new Error(
-      `Failed to compress EPUB: ${
-        error instanceof Error ? error.message : String(error)
-      }`
+      `Failed to compress EPUB: ${error instanceof Error ? error.message : String(error)}`
     );
   }
 }

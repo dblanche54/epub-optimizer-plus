@@ -31,13 +31,9 @@ try {
     // Set cover as linear
     coverRef.attr("linear", "yes");
     fs.writeFileSync(opfFile, $.xml());
-    console.log(
-      'Successfully set cover to linear: <itemref idref="cover" linear="yes"/>'
-    );
+    console.log('Successfully set cover to linear: <itemref idref="cover" linear="yes"/>');
   } else {
-    console.log(
-      "Warning: No cover reference found in spine section of OPF file"
-    );
+    console.log("Warning: No cover reference found in spine section of OPF file");
   }
 } catch (error) {
   if (error instanceof Error) {

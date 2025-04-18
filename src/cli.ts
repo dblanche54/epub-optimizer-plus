@@ -2,6 +2,15 @@ import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
 import config from "./utils/config.ts";
 import type { Args } from "./types.ts";
+import fs from "fs-extra";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Get package.json information for version and description
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const packageJsonPath = path.join(__dirname, "..", "package.json");
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 
 /**
  * Parse command line arguments
@@ -10,7 +19,7 @@ import type { Args } from "./types.ts";
 function parseArguments(): Promise<Args> {
   return Promise.resolve(
     yargs(hideBin(process.argv))
-      .usage("Usage: $0 [options]")
+      .usage(`${packageJson.description}\n\nUsage: pnpm build [options]`)
       .option("input", {
         alias: "i",
         describe: "Input EPUB file path",
@@ -45,17 +54,18 @@ function parseArguments(): Promise<Args> {
         type: "array",
         default: config.pngOptions.quality,
       })
+      .example("pnpm build -i book.epub -o book-optimized.epub", "Basic optimization")
+      .example("pnpm build:clean -i book.epub -o book-opt.epub", "Optimize and clean temp files")
+      .example("pnpm build -i book.epub -o book-opt.epub --jpg-quality 85", "Higher JPEG quality")
+      .example("pnpm build -i book.epub -o book-opt.epub --png-quality 0.9", "Higher PNG quality")
       .example(
-        "$0 -i book.epub -o book-optimized.epub",
-        "Optimize a specific EPUB file"
+        "pnpm build -i input.epub -o output.epub --jpg-quality 85 --png-quality 0.8",
+        "Custom image settings"
       )
       .help()
       .alias("help", "h")
-      .version()
-      .alias("version", "v")
-      .epilog(
-        "For more information visit https://github.com/kiki-le-singe/epub-optimizer"
-      ).argv as unknown as Args
+      .version(packageJson.version)
+      .alias("version", "v").argv as unknown as Args
   );
 }
 

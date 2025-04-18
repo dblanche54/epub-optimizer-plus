@@ -38,30 +38,17 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 - pnpm (my version: 9.5.0)
 - npm or pnpm for package management
 
-## Installation
+Note: All the examples below use pnpm, but you can substitute with npm if preferred.
 
-### Local Installation
+## Installation
 
 ```bash
 # Clone the repository
 git clone https://github.com/kiki-le-singe/epub-optimizer.git
 cd epub-optimizer
 
-# Using npm
-npm install
-
-# Using pnpm
+# Install dependencies
 pnpm install
-```
-
-### Global Installation
-
-```bash
-# Using npm
-npm install -g epub-optimizer
-
-# Using pnpm
-pnpm install -g epub-optimizer
 ```
 
 ### EPUBCheck Setup
@@ -75,80 +62,43 @@ This tool requires EPUBCheck to validate EPUB files. Follow these steps:
 
 ## Usage
 
-### Scripts
+### Available Scripts
 
-The project includes the following scripts (see also the `package.json`):
-
-| Script          | Description                                                      |
-| --------------- | ---------------------------------------------------------------- |
-| `build`         | Full pipeline: optimize, fix, repackage, validate                |
-| `build:clean`   | Full pipeline with temporary file cleanup                        |
-| `optimize`      | Optimize the EPUB file (compression, minification, etc.)         |
-| `optimize:keep` | Optimize and keep temp files for debugging                       |
-| `fix`           | Run all fix scripts on extracted files (fixes validation issues) |
-| `create-epub`   | Repackage EPUB from temp directory                               |
-| `validate`      | Validate EPUB with EPUBCheck                                     |
-| `cleanup`       | Remove temp and intermediate files                               |
-
-### Basic Usage
-
-```bash
-# Complete optimization, fixing, and validation
-pnpm build
-
-# Complete optimization with custom input/output
-pnpm build -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
-
-# Optimize, fix, validate and clean up temporary files
-pnpm cleanup
-
-# Optimize, fix, validate, clean up with custom input/output
-pnpm build:clean -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
-
-# Validate a specific EPUB file (dynamic)
-pnpm validate -o /path/to/output/mybook_optimized.epub
-
-# Individual steps
-pnpm optimize        # Only compress the EPUB file
-pnpm fix             # Fix XML/XHTML validation issues
-pnpm validate        # Check EPUB validity (uses the correct output file if -o is provided)
-```
-
-### Advanced Usage Examples
-
-```bash
-# Process a file with a specific name
-pnpm optimize -- -i mynovel.epub -o mynovel_optimized.epub
-
-# Specify custom JPEG quality (higher quality, larger file)
-pnpm optimize -- --jpg-quality 85
-
-# Keep temporary files for inspection
-pnpm optimize:keep
-
-# Process files in another location
-pnpm optimize -- -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
-```
+| Script        | Description                                       |
+| ------------- | ------------------------------------------------- |
+| `build`       | Full pipeline: optimize, fix, repackage, validate |
+| `build:clean` | Full pipeline with temporary file cleanup         |
+| `cleanup`     | Remove temp and intermediate files                |
 
 ### Command Line Options
 
 ```
-Usage: epub-optimize [options]
+Usage: pnpm build [options]
 
 Options:
-  -i, --input       Input EPUB file path                       [string] [default: "mybook.epub"]
-  -o, --output      Output EPUB file path                      [string] [default: "mybook_opt.epub"]
-  -t, --temp        Temporary directory for processing         [string] [default: "temp_epub"]
-  -k, --keep-temp   Keep temporary files after processing      [boolean] [default: false]
-  --jpg-quality     JPEG compression quality (0-100)           [number] [default: 70]
-  --png-quality     PNG compression quality (0-1 scale)        [array] [default: [0.6, 0.8]]
-  -h, --help        Show help                                  [boolean]
-  -v, --version     Show version number                        [boolean]
+  -i, --input       Input EPUB file path                    [string] [default: "mybook.epub"]
+  -o, --output      Output EPUB file path                   [string] [default: "mybook_opt.epub"]
+  --jpg-quality     JPEG compression quality (0-100)        [number] [default: 70]
+  --png-quality     PNG compression quality (0-1 scale)     [number] [default: 0.6]
+  --clean           Clean temporary files after processing  [boolean] [default: false]
+  -h, --help        Show help message                       [boolean]
+  -v, --version     Show version number                     [boolean]
 
 Examples:
-  epub-optimize -i book.epub -o book-optimized.epub   Optimize a specific EPUB file
-  epub-optimize -i /path/to/book.epub                 Optimize a file from another directory
+  pnpm build -i book.epub -o book-optimized.epub            Basic optimization
+  pnpm build:clean -i book.epub -o book-opt.epub            Optimize and clean temp files
+  pnpm build -i book.epub -o book-opt.epub --jpg-quality 85 Higher JPEG quality (less compression)
+  pnpm build -i book.epub -o book-opt.epub --png-quality 0.9 Higher PNG quality (less compression)
+  pnpm build -i input.epub -o output.epub --jpg-quality 85 --png-quality 0.8 Custom image settings
 ```
+
+> **Script Differences:**
+>
+> - `pnpm build` - Processes the EPUB file and keeps temporary files for inspection
+> - `pnpm build:clean` - Same as build but removes temporary files afterward
+> - `pnpm cleanup` - Manually removes temporary files if needed
+
+> **Important Note:** This tool is designed to work with files in the project directory. Using absolute paths or paths outside the project directory may cause issues.
 
 ## Project Structure
 
@@ -157,7 +107,7 @@ epub-optimizer/
 ├── optimize-epub.ts         # Main entry point
 ├── package.json             # Package configuration
 ├── README.md                # Documentation
-├── epubcheck/               # EPUBCheck for EPUB validation (not included in repo, see 'EPUBCheck Setup' below)
+├── epubcheck/               # EPUBCheck for EPUB validation (not included in repo)
 ├── scripts/                 # Helper scripts
 │   ├── build.ts             # Full optimization pipeline script (with --clean option)
 │   ├── create-epub.ts       # EPUB packaging script
@@ -182,18 +132,6 @@ epub-optimizer/
         └── config.ts        # Application configuration
 ```
 
-## Building and Processing
-
-You can use the `build.ts` script with various options:
-
-```bash
-# Build without cleaning temporary files
-ts-node scripts/build.ts -i your-book.epub -o optimized-book.epub
-
-# Build and clean temporary files
-ts-node scripts/build.ts -i your-book.epub -o optimized-book.epub --clean
-```
-
 ## Modular Fix Scripts
 
 - **General fixes** (e.g. span tags, XML/XHTML) are managed in `scripts/fix/` and run via `scripts/fix/index.ts`.
@@ -206,11 +144,8 @@ ts-node scripts/build.ts -i your-book.epub -o optimized-book.epub --clean
 ### Common Issues
 
 1. **"Error: Unable to access jarfile"**: Make sure Java is installed and EPUBCheck is properly set up in the project root.
-2. **XML/XHTML Validation Errors**: If validation fails after optimization, try running the fix script manually:
-   ```
-   pnpm fix
-   ```
-3. **Missing Dependencies**: If you get module not found errors, ensure you've run `pnpm install` or `npm install`.
+2. **XML/XHTML Validation Errors**: If validation fails after optimization, check the error messages and look at the XML validation issues. The tool automatically applies common fixes during the standard build process.
+3. **Missing Dependencies**: If you get module not found errors, ensure you've run `npm install` or `pnpm install`.
 4. **Large Files**: For very large EPUB files, you might need to increase Node.js memory:
    ```
    NODE_OPTIONS=--max-old-space-size=4096 pnpm build
@@ -231,7 +166,8 @@ If you encounter issues not covered in this documentation, please [open an issue
 - unzipper - For extracting EPUB files
 - yargs - For command-line argument parsing
 - epubcheck - For EPUB validation (external dependency)
-- @biomejs/biome - For linting and formatting (dev dependency)
+- eslint - For code linting with TypeScript support (dev dependency)
+- prettier - For code formatting (dev dependency)
 
 ## License
 

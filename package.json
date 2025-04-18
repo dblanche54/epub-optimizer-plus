@@ -1,61 +1,59 @@
 {
-    "name": "epub-optimizer",
-    "version": "1.0.0",
-    "description": "EPUB optimization script to compress HTML, CSS, images and recompress the archive",
-    "main": "optimize-epub.ts",
-    "bin": {
-        "epub-optimize": "ts-node optimize-epub.ts"
-    },
-    "scripts": {
-        "start": "ts-node src/index.ts",
-        "cli": "ts-node src/cli.ts",
-        "# Build commands": "# Complete pipeline processes",
-        "build": "ts-node scripts/build.ts",
-        "build:clean": "ts-node scripts/build.ts --clean",
-        "# Individual steps": "# Component processes",
-        "optimize": "ts-node optimize-epub.ts",
-        "optimize:keep": "KEEP_TEMP=true ts-node optimize-epub.ts",
-        "fix": "ts-node scripts/fix/index.ts",
-        "create-epub": "ts-node scripts/create-epub.ts",
-        "validate": "ts-node scripts/validate-epub.ts",
-        "cleanup": "rm -rf temp_epub fixed_*.epub",
-        "# Dev tools": "# Development utilities",
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "lint": "biome check .",
-        "format": "biome format ."
-    },
-    "author": "kiki-le-singe",
-    "license": "MIT",
-    "dependencies": {
-        "archiver": "^5.3.1",
-        "cheerio": "^1.0.0",
-        "clean-css": "^5.3.2",
-        "fs-extra": "^11.2.0",
-        "html-minifier-terser": "^7.2.0",
-        "path": "^0.12.7",
-        "sharp": "^0.34.1",
-        "unzipper": "^0.10.11",
-        "yargs": "^17.7.2"
-    },
-    "engines": {
-        "node": ">=14.0.0"
-    },
-    "keywords": [
-        "epub",
-        "optimizer",
-        "compression",
-        "minification",
-        "ebook"
-    ],
-    "devDependencies": {
-        "@biomejs/biome": "^1.9.4",
-        "@types/cheerio": "^0.22.35",
-        "@types/clean-css": "^4.2.11",
-        "@types/fs-extra": "^11.0.4",
-        "@types/node": "^22.14.1",
-        "@types/unzipper": "^0.10.11",
-        "@types/yargs": "^17.0.33",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.8.3"
-    }
+  "name": "epub-optimizer",
+  "version": "1.0.0",
+  "description": "EPUB optimization script to compress HTML, CSS, images and recompress the archive",
+  "main": "optimize-epub.ts",
+  "type": "module",
+  "scripts": {
+    "# Build commands": "# Complete pipeline processes",
+    "build": "ts-node scripts/build.ts",
+    "build:clean": "ts-node scripts/build.ts --clean",
+    "cleanup": "rm -rf temp_epub fixed_*.epub",
+    "# Dev tools": "# Development utilities",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"**/*.{ts,json,md}\"",
+    "check-format": "prettier --check \"**/*.{ts,json,md}\""
+  },
+  "author": "kiki-le-singe",
+  "license": "MIT",
+  "dependencies": {
+    "archiver": "^5.3.1",
+    "cheerio": "^1.0.0",
+    "clean-css": "^5.3.2",
+    "fs-extra": "^11.2.0",
+    "html-minifier-terser": "^7.2.0",
+    "path": "^0.12.7",
+    "sharp": "^0.34.1",
+    "unzipper": "^0.10.11",
+    "yargs": "^17.7.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": [
+    "epub",
+    "optimizer",
+    "compression",
+    "minification",
+    "ebook"
+  ],
+  "devDependencies": {
+    "@eslint/js": "^9.24.0",
+    "@types/cheerio": "^0.22.35",
+    "@types/clean-css": "^4.2.11",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.14.1",
+    "@types/unzipper": "^0.10.11",
+    "@types/yargs": "^17.0.33",
+    "@typescript-eslint/eslint-plugin": "^8.30.1",
+    "@typescript-eslint/parser": "^8.30.1",
+    "eslint": "^9.24.0",
+    "eslint-config-prettier": "^10.1.2",
+    "prettier": "^3.5.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.30.1"
+  }
 }
