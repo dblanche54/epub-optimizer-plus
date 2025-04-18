@@ -4,9 +4,6 @@
   "description": "EPUB optimization script to compress HTML, CSS, images and recompress the archive",
   "main": "optimize-epub.ts",
   "type": "module",
-  "bin": {
-    "epub-optimize": "ts-node optimize-epub.ts"
-  },
   "scripts": {
     "# Build commands": "# Complete pipeline processes",
     "build": "ts-node scripts/build.ts",
