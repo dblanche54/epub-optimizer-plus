@@ -38,30 +38,17 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 - pnpm (my version: 9.5.0)
 - npm or pnpm for package management
 
-## Installation
+Note: All the examples below use pnpm, but you can substitute with npm or your package manager of choice.
 
-### Local Installation
+## Installation
 
 ```bash
 # Clone the repository
 git clone https://github.com/kiki-le-singe/epub-optimizer.git
 cd epub-optimizer
 
-# Using npm
-npm install
-
-# Using pnpm
+# Install dependencies
 pnpm install
-```
-
-### Global Installation
-
-```bash
-# Using npm
-npm install -g epub-optimizer
-
-# Using pnpm
-pnpm install -g epub-optimizer
 ```
 
 ### EPUBCheck Setup
@@ -88,14 +75,8 @@ The project includes the following scripts:
 ### Basic Usage
 
 ```bash
-# Complete optimization, fixing, and validation
-pnpm build
-
 # Complete optimization with custom input/output
 pnpm build -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
-
-# Optimize, fix, validate and clean up temporary files
-pnpm build:clean
 
 # Optimize, fix, validate, clean up with custom input/output
 pnpm build:clean -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
@@ -111,7 +92,7 @@ pnpm cleanup
 pnpm build -- -i mynovel.epub -o mynovel_optimized.epub
 
 # Specify custom JPEG quality (higher quality, larger file)
-pnpm build -- --jpg-quality 85
+pnpm build -- -i mynovel.epub -o mynovel_optimized.epub --jpg-quality 85
 
 # Process files in another location
 pnpm build -- -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.epub
@@ -120,7 +101,7 @@ pnpm build -- -i /path/to/books/mybook.epub -o /path/to/output/mybook_optimized.
 ### Command Line Options
 
 ```
-Usage: epub-optimize [options]
+Usage: npm/pnpm build -- [options]
 
 Options:
   -i, --input       Input EPUB file path                       [string] [default: "mybook.epub"]
@@ -133,8 +114,8 @@ Options:
   -v, --version     Show version number                        [boolean]
 
 Examples:
-  epub-optimize -i book.epub -o book-optimized.epub   Optimize a specific EPUB file
-  epub-optimize -i /path/to/book.epub                 Optimize a file from another directory
+  pnpm build -- -i book.epub -o book-optimized.epub                           Optimize a specific EPUB file
+  pnpm build -- -i /path/to/book.epub -0 book-optimized.epub                  Optimize a file from another directory
 ```
 
 ## Project Structure
@@ -197,7 +178,7 @@ ts-node scripts/build.ts -i your-book.epub -o optimized-book.epub --clean
    ```
    pnpm fix
    ```
-3. **Missing Dependencies**: If you get module not found errors, ensure you've run `pnpm install` or `npm install`.
+3. **Missing Dependencies**: If you get module not found errors, ensure you've run `npm install` or `pnpm install`.
 4. **Large Files**: For very large EPUB files, you might need to increase Node.js memory:
    ```
    NODE_OPTIONS=--max-old-space-size=4096 pnpm build

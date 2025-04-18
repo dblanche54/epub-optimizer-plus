@@ -10,7 +10,7 @@ import type { Args } from "./types.ts";
 function parseArguments(): Promise<Args> {
   return Promise.resolve(
     yargs(hideBin(process.argv))
-      .usage("Usage: $0 [options]")
+      .usage("Usage: npm/pnpm build -- [options]")
       .option("input", {
         alias: "i",
         describe: "Input EPUB file path",
@@ -45,13 +45,12 @@ function parseArguments(): Promise<Args> {
         type: "array",
         default: config.pngOptions.quality,
       })
-      .example("$0 -i book.epub -o book-optimized.epub", "Optimize a specific EPUB file")
+      .example("npm build -- -i book.epub -o book-optimized.epub", "Optimize with npm")
+      .example("pnpm build -- -i book.epub -o book-optimized.epub", "Optimize with pnpm")
       .help()
       .alias("help", "h")
       .version()
-      .alias("version", "v")
-      .epilog("For more information visit https://github.com/kiki-le-singe/epub-optimizer")
-      .argv as unknown as Args
+      .alias("version", "v").argv as unknown as Args
   );
 }
 
