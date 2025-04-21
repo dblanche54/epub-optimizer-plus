@@ -1,6 +1,6 @@
 #!/usr/bin/env ts-node
 
-import { getInputFileInfo, handleError, runCommand } from "./utils.ts";
+import { getInputFileInfo, handleError, runCommand } from "./utils";
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
 import fs from "fs-extra";
@@ -59,7 +59,7 @@ const { fixedFile, args } = getInputFileInfo();
 
 try {
   console.log(`Running optimize with arguments: ${args}`);
-  runCommand(`KEEP_TEMP=true ts-node optimize-epub.ts ${args}`);
+  runCommand(`ts-node optimize-epub.ts ${args}`);
 
   console.log("Running fix scripts");
   runCommand("ts-node scripts/fix/index.ts");

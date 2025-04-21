@@ -5,7 +5,7 @@
 import fs from "fs-extra";
 import path from "node:path";
 import * as cheerio from "cheerio";
-import config from "../../src/utils/config.ts";
+import config from "../../src/utils/config";
 
 // Properly format self-closing tags in XML/XHTML files
 function fixXml(originalContent: string) {

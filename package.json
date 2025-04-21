@@ -2,12 +2,13 @@
   "name": "epub-optimizer",
   "version": "1.0.0",
   "description": "EPUB optimization script to compress HTML, CSS, images and recompress the archive",
-  "main": "optimize-epub.ts",
+  "main": "dist/optimize-epub.js",
   "type": "module",
   "scripts": {
     "# Build commands": "# Complete pipeline processes",
-    "build": "ts-node scripts/build.ts",
-    "build:clean": "ts-node scripts/build.ts --clean",
+    "build": "tsc && tsc-esm-fix dist",
+    "optimize": "node dist/optimize-epub.js",
+    "optimize:clean": "node dist/optimize-epub.js --clean",
     "cleanup": "rm -rf temp_epub fixed_*.epub",
     "# Dev tools": "# Development utilities",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -44,6 +45,7 @@
     "@types/cheerio": "^0.22.35",
     "@types/clean-css": "^4.2.11",
     "@types/fs-extra": "^11.0.4",
+    "@types/html-minifier-terser": "^7.0.2",
     "@types/node": "^22.14.1",
     "@types/unzipper": "^0.10.11",
     "@types/yargs": "^17.0.33",
@@ -53,6 +55,7 @@
     "eslint-config-prettier": "^10.1.2",
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
+    "tsc-esm-fix": "^3.1.2",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.30.1"
   }

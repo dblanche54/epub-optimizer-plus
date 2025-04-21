@@ -2,8 +2,8 @@ import fs from "fs-extra";
 import path from "node:path";
 import sharp from "sharp";
 // Using dynamic imports for all imagemin-related modules
-import config from "../utils/config.ts";
-import { parseArguments } from "../cli.ts";
+import config from "../utils/config";
+import { parseArguments } from "../cli";
 
 // Store quality values from command line or config
 let jpegQuality = config.jpegOptions.quality; // Default value

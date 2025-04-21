@@ -2,7 +2,7 @@ import { execSync } from "node:child_process";
 import path from "node:path";
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
-import config from "../src/utils/config.ts";
+import config from "../src/utils/config";
 
 /**
  * Defines the shape of args returned by parseArgs

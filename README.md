@@ -49,6 +49,9 @@ cd epub-optimizer
 
 # Install dependencies
 pnpm install
+
+# Build the project (required before running optimize commands)
+pnpm build
 ```
 
 ### EPUBCheck Setup
@@ -64,16 +67,33 @@ This tool requires EPUBCheck to validate EPUB files. Follow these steps:
 
 ### Available Scripts
 
-| Script        | Description                                       |
-| ------------- | ------------------------------------------------- |
-| `build`       | Full pipeline: optimize, fix, repackage, validate |
-| `build:clean` | Full pipeline with temporary file cleanup         |
-| `cleanup`     | Remove temp and intermediate files                |
+| Script           | Description                                  |
+| ---------------- | -------------------------------------------- |
+| `build`          | Build TypeScript to dist/ directory          |
+| `optimize`       | Run optimizer, keeping temp files            |
+| `optimize:clean` | Run optimizer, removing temp files afterward |
+| `cleanup`        | Remove temp and intermediate files           |
+
+### Modern Workflow
+
+```bash
+# First, build the project
+pnpm build
+
+# Then run the optimizer (keeping temp files)
+pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
+
+# Or run with cleanup
+pnpm optimize:clean -i YourBook.epub -o YourBook_optimized.epub
+
+# Add custom quality options
+pnpm optimize -i YourBook.epub -o YourBook_optimized.epub --jpg-quality 85 --png-quality 0.9
+```
 
 ### Command Line Options
 
 ```
-Usage: pnpm build [options]
+Usage: pnpm optimize [options]
 
 Options:
   -i, --input       Input EPUB file path                    [string] [default: "mybook.epub"]
@@ -85,17 +105,17 @@ Options:
   -v, --version     Show version number                     [boolean]
 
 Examples:
-  pnpm build -i book.epub -o book-optimized.epub            Basic optimization
-  pnpm build:clean -i book.epub -o book-opt.epub            Optimize and clean temp files
-  pnpm build -i book.epub -o book-opt.epub --jpg-quality 85 Higher JPEG quality (less compression)
-  pnpm build -i book.epub -o book-opt.epub --png-quality 0.9 Higher PNG quality (less compression)
-  pnpm build -i input.epub -o output.epub --jpg-quality 85 --png-quality 0.8 Custom image settings
+  pnpm optimize -i book.epub -o book-optimized.epub            Basic optimization
+  pnpm optimize:clean -i book.epub -o book-opt.epub            Optimize and clean temp files
+  pnpm optimize -i book.epub -o book-opt.epub --jpg-quality 85 Higher JPEG quality (less compression)
+  pnpm optimize -i book.epub -o book-opt.epub --png-quality 0.9 Higher PNG quality (less compression)
+  pnpm optimize -i input.epub -o output.epub --jpg-quality 85 --png-quality 0.8 Custom image settings
 ```
 
 > **Script Differences:**
 >
-> - `pnpm build` - Processes the EPUB file and keeps temporary files for inspection
-> - `pnpm build:clean` - Same as build but removes temporary files afterward
+> - `pnpm optimize` - Optimizes the EPUB file and keeps temporary files for inspection
+> - `pnpm optimize:clean` - Same as optimize but removes temporary files afterward
 > - `pnpm cleanup` - Manually removes temporary files if needed
 
 > **Important Note:** This tool is designed to work with files in the project directory. Using absolute paths or paths outside the project directory may cause issues.
@@ -104,33 +124,56 @@ Examples:
 
 ```
 epub-optimizer/
-├── optimize-epub.ts         # Main entry point
-├── package.json             # Package configuration
-├── README.md                # Documentation
-├── epubcheck/               # EPUBCheck for EPUB validation (not included in repo)
-├── scripts/                 # Helper scripts
-│   ├── build.ts             # Full optimization pipeline script (with --clean option)
-│   ├── create-epub.ts       # EPUB packaging script
-│   ├── fix/                 # General fix scripts (modular)
+├── dist/                   # Compiled JavaScript (production code)
+├── optimize-epub.ts        # Main entry point (TypeScript)
+├── package.json            # Package configuration
+├── README.md               # Documentation
+├── tsconfig.json           # TypeScript configuration
+├── epubcheck/              # EPUBCheck for EPUB validation (not included in repo)
+├── scripts/                # Helper scripts
+│   ├── build.ts            # Full optimization pipeline script (with --clean option)
+│   ├── create-epub.ts      # EPUB packaging script
+│   ├── fix/                # General fix scripts (modular)
 │   │   ├── fix-span-tags.ts
 │   │   ├── fix-xml.ts
-│   │   └── index.ts         # Entry point for all general fixes
-│   ├── opf/                 # OPF-specific modifications (fixes, options, or features)
+│   │   └── index.ts        # Entry point for all general fixes
+│   ├── opf/                # OPF-specific modifications (fixes, options, or features)
 │   │   ├── add-cover-image-property.ts
 │   │   ├── update-cover-linear.ts
-│   │   └── update-opf.ts    # Entry point for all OPF fixes
-│   ├── utils.ts             # Shared utilities for scripts
-│   └── validate-epub.ts     # EPUB validation script
-└── src/                     # Source code directory
-    ├── index.ts             # Main application logic
-    ├── cli.ts               # Command-line interface
-    ├── processors/          # Processing modules
+│   │   └── update-opf.ts   # Entry point for all OPF fixes
+│   ├── utils.ts            # Shared utilities for scripts
+│   └── validate-epub.ts    # EPUB validation script
+└── src/                    # Source code directory
+    ├── index.ts            # Main application logic
+    ├── cli.ts              # Command-line interface
+    ├── processors/         # Processing modules
     │   ├── archive-processor.ts  # EPUB extraction/compression
     │   ├── html-processor.ts     # HTML/CSS processing
     │   └── image-processor.ts    # Image optimization
-    └── utils/               # Utility modules
-        └── config.ts        # Application configuration
+    └── utils/              # Utility modules
+        └── config.ts       # Application configuration
 ```
+
+## Development Information
+
+This project is built with TypeScript and uses modern ESM modules. Here's how the development workflow works:
+
+### Source and Build Separation
+
+- TypeScript source files are in the `src/` and `scripts/` directories
+- The compiled JavaScript output goes to the `dist/` directory
+- You must run `pnpm build` before running any `optimize` commands
+
+### Import Structure
+
+- Source files use extensionless imports (e.g., `import { foo } from './foo'`)
+- The build process adds `.js` extensions to imports in the compiled output for Node.js compatibility
+
+### Development and Production
+
+- For development: Make changes to TypeScript files
+- For production: Run `pnpm build` to create a production-ready `dist/` directory
+- The `optimize` commands run against the compiled code in `dist/`
 
 ## Modular Fix Scripts
 

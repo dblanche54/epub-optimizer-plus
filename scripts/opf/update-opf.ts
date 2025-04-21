@@ -1,7 +1,7 @@
 // This script fixes/updates the OPF file.
 // It is used to fix/update the OPF file after the book is built.
 
-import { runCommand, handleError } from "../utils.ts";
+import { runCommand, handleError } from "../utils";
 
 try {
   // TODO: is add_cover_image_property really needed?

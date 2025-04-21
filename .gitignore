@@ -1,6 +1,9 @@
 # Dependency directories
 node_modules/
 
+# Compiled output
+dist/
+
 # Temporary files
 temp_epub/
 extracted/

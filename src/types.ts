@@ -2,8 +2,7 @@ export interface Args {
   input: string;
   output: string;
   temp: string;
-  "keep-temp": boolean;
-  keepTemp: boolean;
+  clean: boolean;
   "jpg-quality": number;
   jpgQuality: number;
   "png-quality": number[] | (string | number)[];

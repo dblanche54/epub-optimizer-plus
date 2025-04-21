@@ -1,4 +1,4 @@
-import { runCommand, handleError } from "../utils.ts";
+import { runCommand, handleError } from "../utils";
 
 try {
   runCommand("ts-node scripts/fix/fix-span-tags.ts");

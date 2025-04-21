@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execSync } from "node:child_process";
-import config from "../src/utils/config.ts";
-import { parseArgs, handleError } from "./utils.ts";
+import config from "../src/utils/config";
+import { parseArgs, handleError } from "./utils";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
