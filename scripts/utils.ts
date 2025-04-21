@@ -19,7 +19,6 @@ export interface CommandArgs {
 export interface InputFileInfo {
   inputFile: string;
   inputBasename: string;
-  fixedFile: string;
   args: string;
 }
 
@@ -65,9 +64,8 @@ export function getInputFileInfo(): InputFileInfo {
     inputFile = inputArg[1];
   }
   const inputBasename = path.basename(inputFile, ".epub");
-  const fixedFile = `fixed_${inputBasename}.epub`;
 
-  return { inputFile, inputBasename, fixedFile, args };
+  return { inputFile, inputBasename, args };
 }
 
 /**

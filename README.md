@@ -67,27 +67,29 @@ This tool requires EPUBCheck to validate EPUB files. Follow these steps:
 
 ### Available Scripts
 
-| Script           | Description                                  |
-| ---------------- | -------------------------------------------- |
-| `build`          | Build TypeScript to dist/ directory          |
-| `optimize`       | Run optimizer, keeping temp files            |
-| `optimize:clean` | Run optimizer, removing temp files afterward |
-| `cleanup`        | Remove temp and intermediate files           |
+| Script           | Description                                         |
+| ---------------- | --------------------------------------------------- |
+| `build`          | Build TypeScript for production (with minification) |
+| `build:dev`      | Build TypeScript for development (no minification)  |
+| `build:prod`     | Build TypeScript with minification for production   |
+| `minify:safe`    | Safely minify JavaScript in dist/ directory         |
+| `optimize`       | Run optimizer, keeping temp files                   |
+| `optimize:clean` | Run optimizer, removing temp files afterward        |
+| `cleanup`        | Remove temporary files                              |
 
 ### Modern Workflow
 
 ```bash
-# First, build the project
+# Build for development (faster, not minified)
+pnpm build:dev
+
+# Build for production (with minification)
 pnpm build
+# or
+pnpm build:prod
 
-# Then run the optimizer (keeping temp files)
+# Then run the optimizer
 pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
-
-# Or run with cleanup
-pnpm optimize:clean -i YourBook.epub -o YourBook_optimized.epub
-
-# Add custom quality options
-pnpm optimize -i YourBook.epub -o YourBook_optimized.epub --jpg-quality 85 --png-quality 0.9
 ```
 
 ### Command Line Options
@@ -116,7 +118,7 @@ Examples:
 >
 > - `pnpm optimize` - Optimizes the EPUB file and keeps temporary files for inspection
 > - `pnpm optimize:clean` - Same as optimize but removes temporary files afterward
-> - `pnpm cleanup` - Manually removes temporary files if needed
+> - `pnpm cleanup` - Manually removes the temporary directory (temp_epub)
 
 > **Important Note:** This tool is designed to work with files in the project directory. Using absolute paths or paths outside the project directory may cause issues.
 
@@ -133,6 +135,7 @@ epub-optimizer/
 ├── scripts/                # Helper scripts
 │   ├── build.ts            # Full optimization pipeline script (with --clean option)
 │   ├── create-epub.ts      # EPUB packaging script
+│   ├── minify-dist.js      # Smart minification script for JavaScript files
 │   ├── fix/                # General fix scripts (modular)
 │   │   ├── fix-span-tags.ts
 │   │   ├── fix-xml.ts
@@ -171,9 +174,25 @@ This project is built with TypeScript and uses modern ESM modules. Here's how th
 
 ### Development and Production
 
-- For development: Make changes to TypeScript files
-- For production: Run `pnpm build` to create a production-ready `dist/` directory
+- For development: Make changes to TypeScript files and run `pnpm build:dev`
+- For production: Run `pnpm build` to create a minified, optimized `dist/` directory
 - The `optimize` commands run against the compiled code in `dist/`
+
+## Minification
+
+The production build process includes:
+
+- TypeScript compilation
+- ESM import path fixing
+- Smart JavaScript minification with Terser:
+  - Minifies all files in both `src/` and `scripts/` directories
+  - Uses a skip list to avoid minifying problematic files with syntax incompatibilities
+  - Maintains class names and function names for better error reporting
+  - Compresses and mangles variables for reduced file size
+- Source maps for debugging
+- Comment removal
+
+The minification process is handled by a custom script that safely processes JavaScript files while maintaining compatibility with the Node.js ESM module system.
 
 ## Modular Fix Scripts
 
@@ -191,7 +210,7 @@ This project is built with TypeScript and uses modern ESM modules. Here's how th
 3. **Missing Dependencies**: If you get module not found errors, ensure you've run `npm install` or `pnpm install`.
 4. **Large Files**: For very large EPUB files, you might need to increase Node.js memory:
    ```
-   NODE_OPTIONS=--max-old-space-size=4096 pnpm build
+   NODE_OPTIONS=--max-old-space-size=4096 pnpm optimize
    ```
 
 ### Getting Help
@@ -208,6 +227,7 @@ If you encounter issues not covered in this documentation, please [open an issue
 - sharp - For image optimization (JPEG, PNG, WebP, GIF, AVIF, SVG)
 - unzipper - For extracting EPUB files
 - yargs - For command-line argument parsing
+- terser - For JavaScript minification (dev dependency)
 - epubcheck - For EPUB validation (external dependency)
 - eslint - For code linting with TypeScript support (dev dependency)
 - prettier - For code formatting (dev dependency)

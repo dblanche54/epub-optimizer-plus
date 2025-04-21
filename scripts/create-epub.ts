@@ -11,17 +11,11 @@ const __dirname = path.dirname(__filename);
 // Parse command line arguments
 const argv = parseArgs(true, true);
 
-// Get the input and output file paths from arguments or default config
-const inputEpub = argv.input || config.inputEPUB;
+// Get the output file path from arguments or default config
 const outputEpub = argv.output || config.outputEPUB;
-
-// Get the basename for creating the fixed file
-const inputBasename = path.basename(inputEpub, ".epub");
-const fixedEpubName = `fixed_${inputBasename}.epub`;
 
 // Get the extraction directory from config
 const extractedDir = path.join(__dirname, "..", config.tempDir);
-const fixedEpubPath = path.join(__dirname, "..", fixedEpubName);
 const outputEpubPath = path.join(__dirname, "..", outputEpub);
 
 // Verify the directory exists
@@ -31,29 +25,24 @@ if (!fs.existsSync(extractedDir)) {
   process.exit(1);
 }
 
-// Always create a new EPUB file after fixing
+// Create a new EPUB file
 console.log("Creating new EPUB...");
 
 try {
-  // Use execSync instead of exec to ensure it completes before moving on
-  // Delete existing fixed EPUB if it exists
-  if (fs.existsSync(fixedEpubPath)) {
-    fs.unlinkSync(fixedEpubPath);
+  // Delete existing output EPUB if it exists
+  if (fs.existsSync(outputEpubPath)) {
+    fs.unlinkSync(outputEpubPath);
   }
 
   // Step 1: Add mimetype first, uncompressed, no extra fields
   console.log("Adding mimetype file...");
-  execSync(`cd "${extractedDir}" && zip -X0 "${fixedEpubPath}" mimetype`);
+  execSync(`cd "${extractedDir}" && zip -X0 "${outputEpubPath}" mimetype`);
 
   // Step 2: Add the rest, compressed, excluding mimetype
   console.log("Adding remaining files...");
-  execSync(`cd "${extractedDir}" && zip -Xr9D "${fixedEpubPath}" . -x mimetype`);
+  execSync(`cd "${extractedDir}" && zip -Xr9D "${outputEpubPath}" . -x mimetype`);
 
-  console.log(`Created ${fixedEpubName}`);
-
-  // Copy to the output file
-  fs.copyFileSync(fixedEpubPath, outputEpubPath);
-  console.log(`Copied to ${outputEpub}`);
+  console.log(`Created optimized EPUB: ${outputEpub}`);
 } catch (error) {
   handleError(error);
 }
