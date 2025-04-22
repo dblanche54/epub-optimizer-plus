@@ -36,7 +36,7 @@ jobs:
         run: pnpm lint
 
       - name: Check formatting
-        run: pnpm format:check
+        run: npx prettier --check --log-level debug "**/*.{ts,json,md}"
 
       - name: Build project
         run: pnpm build
