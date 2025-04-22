@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import path from "node:path";
 import * as cheerio from "cheerio";
-import config from "../../src/utils/config";
+import config from "../../utils/config";
 
 // Define paths clearly
 const extractedDir = path.join(process.cwd(), config.tempDir);

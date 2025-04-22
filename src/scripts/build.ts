@@ -1,6 +1,6 @@
 #!/usr/bin/env ts-node
 
-import { getInputFileInfo, handleError, runCommand } from "./utils";
+import { getInputFileInfo, handleError, runCommand } from "./utils.js";
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
 import fs from "fs-extra";

@@ -5,7 +5,7 @@
 import fs from "fs-extra";
 import path from "node:path";
 import * as cheerio from "cheerio";
-import config from "../../src/utils/config";
+import config from "../../utils/config.js";
 
 // Properly format self-closing tags in XML/XHTML files
 function fixXml(originalContent: string) {
@@ -52,7 +52,8 @@ function fixXml(originalContent: string) {
 }
 
 // Get the extraction directory from config
-const extractedDir = path.join(process.cwd(), config.tempDir);
+const projectRoot = process.cwd();
+const extractedDir = path.join(projectRoot, config.tempDir);
 const opsDir = path.join(extractedDir, "OPS");
 
 // Verify the directory exists

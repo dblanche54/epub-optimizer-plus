@@ -1,9 +1,9 @@
 import fs from "fs-extra";
-import { parseArguments } from "./cli";
-import { extractEPUB, compressEPUB } from "./processors/archive-processor";
-import { processHTML } from "./processors/html-processor";
-import { optimizeImages } from "./processors/image-processor";
-import type { Args } from "./types";
+import { parseArguments } from "./cli.js";
+import { extractEPUB, compressEPUB } from "./processors/archive-processor.js";
+import { processHTML } from "./processors/html-processor.js";
+import { optimizeImages } from "./processors/image-processor.js";
+import type { Args } from "./types.js";
 
 /**
  * Main function to optimize an EPUB file

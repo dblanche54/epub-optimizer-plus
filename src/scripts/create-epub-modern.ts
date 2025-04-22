@@ -1,12 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+// import { fileURLToPath } from "node:url"; // Unused, remove
 import { execSync } from "node:child_process";
-import config from "../src/utils/config";
-import { parseArgs, handleError } from "./utils";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import config from "../utils/config.js";
+import { parseArgs, handleError } from "./utils.js";
 
 // Parse command line arguments
 const argv = parseArgs(true, true);
@@ -14,9 +11,10 @@ const argv = parseArgs(true, true);
 // Get the output file path from arguments or default config
 const outputEpub = argv.output || config.outputEPUB;
 
-// Get the extraction directory from config
-const extractedDir = path.join(__dirname, "..", config.tempDir);
-const outputEpubPath = path.join(__dirname, "..", outputEpub);
+// Use the project root directory for file paths (not the compiled dist location)
+const projectRoot = process.cwd();
+const extractedDir = path.join(projectRoot, config.tempDir);
+const outputEpubPath = path.join(projectRoot, outputEpub);
 
 // Verify the directory exists
 if (!fs.existsSync(extractedDir)) {

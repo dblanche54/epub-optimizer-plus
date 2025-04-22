@@ -4,20 +4,21 @@ import path from "path";
 import { minify } from "terser";
 import { fileURLToPath } from "url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const distDir = path.join(__dirname, "..", "dist");
 const srcDir = path.join(distDir, "src");
-const scriptsDir = path.join(distDir, "scripts");
 const entryPoint = path.join(distDir, "optimize-epub.js");
 
 // Scripts to skip minification due to template literal variable name issues
-const skipFiles = ["build.js", "create-epub.js"];
+const skipFiles: string[] = [];
 
 /**
  * Minify a JavaScript file and save the result
- * @param {string} filePath Path to JavaScript file
+ * @param filePath Path to JavaScript file
  */
-async function minifyFile(filePath) {
+async function minifyFile(filePath: string): Promise<boolean> {
   // Skip files in the skip list
   const fileName = path.basename(filePath);
   if (skipFiles.includes(fileName)) {
@@ -47,17 +48,21 @@ async function minifyFile(filePath) {
       console.warn(`⚠ No output for: ${path.relative(distDir, filePath)}`);
       return false;
     }
-  } catch (error) {
-    console.error(`✗ Error minifying ${path.relative(distDir, filePath)}: ${error.message}`);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(`✗ Error minifying ${path.relative(distDir, filePath)}: ${error.message}`);
+    } else {
+      console.error(`✗ Error minifying ${path.relative(distDir, filePath)}:`, error);
+    }
     return false;
   }
 }
 
 /**
  * Recursively process all .js files in a directory
- * @param {string} dir Directory to process
+ * @param dir Directory to process
  */
-async function processDirectory(dir) {
+async function processDirectory(dir: string): Promise<void> {
   const entries = await readdir(dir, { withFileTypes: true });
 
   for (const entry of entries) {
@@ -88,14 +93,6 @@ async function main() {
     await processDirectory(srcDir);
   } else {
     console.warn(`Source directory not found: ${srcDir}`);
-  }
-
-  // Minify scripts/ directory
-  if (existsSync(scriptsDir)) {
-    console.log("Processing scripts/ directory...");
-    await processDirectory(scriptsDir);
-  } else {
-    console.warn(`Scripts directory not found: ${scriptsDir}`);
   }
 
   console.log("Minification complete!");

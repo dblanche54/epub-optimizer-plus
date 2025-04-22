@@ -1,7 +1,7 @@
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
-import config from "./utils/config";
-import type { Args } from "./types";
+import config from "./utils/config.js";
+import type { Args } from "./types.js";
 import fs from "fs-extra";
 import path from "path";
 

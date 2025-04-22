@@ -67,15 +67,19 @@ This tool requires EPUBCheck to validate EPUB files. Follow these steps:
 
 ### Available Scripts
 
-| Script           | Description                                         |
-| ---------------- | --------------------------------------------------- |
-| `build`          | Build TypeScript for production (with minification) |
-| `build:dev`      | Build TypeScript for development (no minification)  |
-| `build:prod`     | Build TypeScript with minification for production   |
-| `minify:safe`    | Safely minify JavaScript in dist/ directory         |
-| `optimize`       | Run optimizer, keeping temp files                   |
-| `optimize:clean` | Run optimizer, removing temp files afterward        |
-| `cleanup`        | Remove temporary files                              |
+| Script           | Description                                                                       |
+| ---------------- | --------------------------------------------------------------------------------- |
+| `build`          | Build TypeScript for production (with minification)                               |
+| `build:dev`      | Build TypeScript for development (no minification)                                |
+| `build:prod`     | Build TypeScript with minification for production                                 |
+| `minify:safe`    | Safely minify JavaScript in dist/ directory using TypeScript source (via ts-node) |
+| `optimize`       | Run optimizer, keeping temp files                                                 |
+| `optimize:clean` | Run optimizer, removing temp files afterward                                      |
+| `cleanup`        | Remove temporary files                                                            |
+| `lint`           | Lint TypeScript files in src and scripts directories                              |
+| `lint:fix`       | Lint and auto-fix TypeScript files in src and scripts                             |
+| `format`         | Auto-format all .ts, .json, and .md files with Prettier                           |
+| `format:check`   | Check formatting of all .ts, .json, and .md files with Prettier                   |
 
 ### Modern Workflow
 
@@ -178,6 +182,15 @@ This project is built with TypeScript and uses modern ESM modules. Here's how th
 - For production: Run `pnpm build` to create a minified, optimized `dist/` directory
 - The `optimize` commands run against the compiled code in `dist/`
 
+## Linting and Formatting
+
+- **Linting:**
+  - `pnpm run lint` lints all TypeScript files in the `src` and `scripts` directories.
+  - `pnpm run lint:fix` does the same, but also auto-fixes issues where possible.
+- **Formatting:**
+  - `pnpm run format` auto-formats all `.ts`, `.json`, and `.md` files in the project using Prettier.
+  - `pnpm run format:check` checks formatting without making changes (useful for CI).
+
 ## Minification
 
 The production build process includes:
@@ -192,7 +205,7 @@ The production build process includes:
 - Source maps for debugging
 - Comment removal
 
-The minification process is handled by a custom script that safely processes JavaScript files while maintaining compatibility with the Node.js ESM module system.
+> **Note:** The minification script (`minify:safe`) is run using `ts-node` directly on the TypeScript source (`scripts/minify-dist.ts`), not on compiled JavaScript. This ensures the latest TypeScript logic is always used for minification.
 
 ## Modular Fix Scripts
 

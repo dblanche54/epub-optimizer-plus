@@ -7,18 +7,18 @@
   "scripts": {
     "# Build commands": "# Complete pipeline processes",
     "build": "pnpm run build:prod",
-    "build:dev": "tsc && tsc-esm-fix dist",
+    "build:dev": "tsc",
     "build:prod": "pnpm run build:dev && pnpm run minify:safe",
-    "minify:safe": "node scripts/minify-dist.js",
-    "optimize": "node dist/optimize-epub.js",
-    "optimize:clean": "node dist/optimize-epub.js --clean",
+    "minify:safe": "ts-node scripts/minify-dist.ts",
+    "optimize": "node dist/src/pipeline.js",
+    "optimize:clean": "node dist/src/pipeline.js --clean",
     "cleanup": "rm -rf temp_epub",
     "# Dev tools": "# Development utilities",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
+    "lint": "eslint src scripts --ext .ts",
+    "lint:fix": "eslint src scripts --ext .ts --fix",
     "format": "prettier --write \"**/*.{ts,json,md}\"",
-    "check-format": "prettier --check \"**/*.{ts,json,md}\""
+    "format:check": "prettier --check \"**/*.{ts,json,md}\""
   },
   "author": "kiki-le-singe",
   "license": "MIT",
@@ -59,7 +59,6 @@
     "prettier": "^3.5.3",
     "terser": "^5.39.0",
     "ts-node": "^10.9.2",
-    "tsc-esm-fix": "^3.1.2",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.30.1"
   }

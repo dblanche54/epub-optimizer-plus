@@ -16,6 +16,6 @@
     "allowJs": false,
     "noEmit": false
   },
-  "include": ["src/**/*", "scripts/**/*", "*.ts", "**/*.d.ts"],
+  "include": ["src/**/*", "*.ts", "**/*.d.ts", "scripts/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
