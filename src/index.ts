@@ -8,8 +8,9 @@ import type { Args } from "./types.js";
 /**
  * Main function to optimize an EPUB file
  * Extracts the EPUB, processes its contents, and repackages it
+ * @returns Promise resolving to an object containing the operation result
  */
-async function optimizeEPUB() {
+async function optimizeEPUB(): Promise<{ success: boolean; input: string; output: string }> {
   // Parse command line arguments
   const args = (await parseArguments()) as Args;
 
@@ -51,13 +52,21 @@ async function optimizeEPUB() {
 
     // Report file size comparison
     await reportFileSizeComparison(args.input, args.output);
+
+    return { success: true, input: args.input, output: args.output };
   } catch (error) {
     if (error instanceof Error) {
       console.error(`❌ Error: ${error.message}`);
     } else {
       console.error("❌ Unknown error", error);
     }
-    process.exit(1);
+
+    // Only exit the process in a non-test environment
+    if (process.env.NODE_ENV !== "test") {
+      process.exit(1);
+    }
+
+    throw error;
   }
 }
 
@@ -105,12 +114,16 @@ function formatFileSize(bytes: number): string {
   return `${size.toFixed(2)} ${units[unitIndex]}`;
 }
 
-// Run the optimizer
-optimizeEPUB().catch((error) => {
-  if (error instanceof Error) {
-    console.error(`❌ Unhandled error: ${error.message}`);
-  } else {
-    console.error("❌ Unhandled unknown error", error);
-  }
-  process.exit(1);
-});
+// Run the optimizer only if this file is executed directly (not imported in tests)
+if (process.env.NODE_ENV !== "test") {
+  optimizeEPUB().catch((error) => {
+    if (error instanceof Error) {
+      console.error(`❌ Unhandled error: ${error.message}`);
+    } else {
+      console.error("❌ Unhandled unknown error", error);
+    }
+    process.exit(1);
+  });
+}
+
+export { formatFileSize, reportFileSizeComparison, optimizeEPUB };

@@ -138,4 +138,4 @@ async function compressImage(imagePath: string): Promise<void> {
   }
 }
 
-export { optimizeImages };
+export { optimizeImages, compressImage };
