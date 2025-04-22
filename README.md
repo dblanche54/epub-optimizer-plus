@@ -2,7 +2,6 @@
 
 - Add cover image to the summary in .opf and toc.xhtml automatically
 - Add GitHub Actions pipeline for CI/CD
-- Publish as an npm package
 
 # EPUB Optimizer
 
