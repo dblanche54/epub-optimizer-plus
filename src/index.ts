@@ -1,9 +1,9 @@
 import fs from "fs-extra";
-import { parseArguments } from "./cli.ts";
-import { extractEPUB, compressEPUB } from "./processors/archive-processor.ts";
-import { processHTML } from "./processors/html-processor.ts";
-import { optimizeImages } from "./processors/image-processor.ts";
-import type { Args } from "./types.ts";
+import { parseArguments } from "./cli.js";
+import { extractEPUB, compressEPUB } from "./processors/archive-processor.js";
+import { processHTML } from "./processors/html-processor.js";
+import { optimizeImages } from "./processors/image-processor.js";
+import type { Args } from "./types.js";
 
 /**
  * Main function to optimize an EPUB file
@@ -42,11 +42,11 @@ async function optimizeEPUB() {
     console.log(`✅ Created optimized EPUB: ${args.output}`);
 
     // 5. Clean up temporary files if needed
-    if (!args["keep-temp"] && process.env.KEEP_TEMP !== "true") {
+    if (args.clean) {
       await fs.remove(args.temp);
       console.log(`🧹 Removed temporary directory: ${args.temp}`);
     } else {
-      console.log(`📁 Kept temporary directory: ${args.temp} for post-processing`);
+      console.log(`📁 Kept temporary directory: ${args.temp} for inspection`);
     }
 
     // Report file size comparison

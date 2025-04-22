@@ -1,6 +1,6 @@
 #!/usr/bin/env ts-node
 
-import { getInputFileInfo, handleError, runCommand } from "./utils.ts";
+import { getInputFileInfo, handleError, runCommand } from "./utils.js";
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
 import fs from "fs-extra";
@@ -55,11 +55,11 @@ const argv = yargs(hideBin(process.argv))
   .version(false).argv as { clean: boolean };
 
 // Get input file info and args
-const { fixedFile, args } = getInputFileInfo();
+const { args } = getInputFileInfo();
 
 try {
   console.log(`Running optimize with arguments: ${args}`);
-  runCommand(`KEEP_TEMP=true ts-node optimize-epub.ts ${args}`);
+  runCommand(`ts-node optimize-epub.ts ${args}`);
 
   console.log("Running fix scripts");
   runCommand("ts-node scripts/fix/index.ts");
@@ -75,7 +75,7 @@ try {
 
   if (argv.clean) {
     console.log("Cleaning up temporary files");
-    runCommand(`rm -rf temp_epub ${fixedFile}`);
+    runCommand(`rm -rf temp_epub`);
     console.log("All done!");
   } else {
     console.log("Build completed successfully!");

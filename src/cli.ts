@@ -1,15 +1,12 @@
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
-import config from "./utils/config.ts";
-import type { Args } from "./types.ts";
+import config from "./utils/config.js";
+import type { Args } from "./types.js";
 import fs from "fs-extra";
 import path from "path";
-import { fileURLToPath } from "url";
 
 // Get package.json information for version and description
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const packageJsonPath = path.join(__dirname, "..", "package.json");
+const packageJsonPath = path.join(process.cwd(), "package.json");
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 
 /**
@@ -38,12 +35,6 @@ function parseArguments(): Promise<Args> {
         type: "string",
         default: config.tempDir,
       })
-      .option("keep-temp", {
-        alias: "k",
-        describe: "Keep temporary files after processing",
-        type: "boolean",
-        default: false,
-      })
       .option("jpg-quality", {
         describe: "JPEG compression quality (0-100)",
         type: "number",
@@ -53,6 +44,11 @@ function parseArguments(): Promise<Args> {
         describe: "PNG compression quality (0-1 scale, use decimal)",
         type: "array",
         default: config.pngOptions.quality,
+      })
+      .option("clean", {
+        describe: "Clean temporary files after processing",
+        type: "boolean",
+        default: false,
       })
       .example("pnpm build -i book.epub -o book-optimized.epub", "Basic optimization")
       .example("pnpm build:clean -i book.epub -o book-opt.epub", "Optimize and clean temp files")

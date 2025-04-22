@@ -49,6 +49,9 @@ cd epub-optimizer
 
 # Install dependencies
 pnpm install
+
+# Build the project (required before running optimize commands)
+pnpm build
 ```
 
 ### EPUBCheck Setup
@@ -64,16 +67,39 @@ This tool requires EPUBCheck to validate EPUB files. Follow these steps:
 
 ### Available Scripts
 
-| Script        | Description                                       |
-| ------------- | ------------------------------------------------- |
-| `build`       | Full pipeline: optimize, fix, repackage, validate |
-| `build:clean` | Full pipeline with temporary file cleanup         |
-| `cleanup`     | Remove temp and intermediate files                |
+| Script           | Description                                                                       |
+| ---------------- | --------------------------------------------------------------------------------- |
+| `build`          | Build TypeScript for production (with minification)                               |
+| `build:dev`      | Build TypeScript for development (no minification)                                |
+| `build:prod`     | Build TypeScript with minification for production                                 |
+| `minify:safe`    | Safely minify JavaScript in dist/ directory using TypeScript source (via ts-node) |
+| `optimize`       | Run optimizer, keeping temp files                                                 |
+| `optimize:clean` | Run optimizer, removing temp files afterward                                      |
+| `cleanup`        | Remove temporary files                                                            |
+| `lint`           | Lint TypeScript files in src and scripts directories                              |
+| `lint:fix`       | Lint and auto-fix TypeScript files in src and scripts                             |
+| `format`         | Auto-format all .ts, .json, and .md files with Prettier                           |
+| `format:check`   | Check formatting of all .ts, .json, and .md files with Prettier                   |
+
+### Modern Workflow
+
+```bash
+# Build for development (faster, not minified)
+pnpm build:dev
+
+# Build for production (with minification)
+pnpm build
+# or
+pnpm build:prod
+
+# Then run the optimizer
+pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
+```
 
 ### Command Line Options
 
 ```
-Usage: pnpm build [options]
+Usage: pnpm optimize [options]
 
 Options:
   -i, --input       Input EPUB file path                    [string] [default: "mybook.epub"]
@@ -85,18 +111,18 @@ Options:
   -v, --version     Show version number                     [boolean]
 
 Examples:
-  pnpm build -i book.epub -o book-optimized.epub            Basic optimization
-  pnpm build:clean -i book.epub -o book-opt.epub            Optimize and clean temp files
-  pnpm build -i book.epub -o book-opt.epub --jpg-quality 85 Higher JPEG quality (less compression)
-  pnpm build -i book.epub -o book-opt.epub --png-quality 0.9 Higher PNG quality (less compression)
-  pnpm build -i input.epub -o output.epub --jpg-quality 85 --png-quality 0.8 Custom image settings
+  pnpm optimize -i book.epub -o book-optimized.epub            Basic optimization
+  pnpm optimize:clean -i book.epub -o book-opt.epub            Optimize and clean temp files
+  pnpm optimize -i book.epub -o book-opt.epub --jpg-quality 85 Higher JPEG quality (less compression)
+  pnpm optimize -i book.epub -o book-opt.epub --png-quality 0.9 Higher PNG quality (less compression)
+  pnpm optimize -i input.epub -o output.epub --jpg-quality 85 --png-quality 0.8 Custom image settings
 ```
 
 > **Script Differences:**
 >
-> - `pnpm build` - Processes the EPUB file and keeps temporary files for inspection
-> - `pnpm build:clean` - Same as build but removes temporary files afterward
-> - `pnpm cleanup` - Manually removes temporary files if needed
+> - `pnpm optimize` - Optimizes the EPUB file and keeps temporary files for inspection
+> - `pnpm optimize:clean` - Same as optimize but removes temporary files afterward
+> - `pnpm cleanup` - Manually removes the temporary directory (temp_epub)
 
 > **Important Note:** This tool is designed to work with files in the project directory. Using absolute paths or paths outside the project directory may cause issues.
 
@@ -104,33 +130,82 @@ Examples:
 
 ```
 epub-optimizer/
-├── optimize-epub.ts         # Main entry point
-├── package.json             # Package configuration
-├── README.md                # Documentation
-├── epubcheck/               # EPUBCheck for EPUB validation (not included in repo)
-├── scripts/                 # Helper scripts
-│   ├── build.ts             # Full optimization pipeline script (with --clean option)
-│   ├── create-epub.ts       # EPUB packaging script
-│   ├── fix/                 # General fix scripts (modular)
+├── dist/                   # Compiled JavaScript (production code)
+├── optimize-epub.ts        # Main entry point (TypeScript)
+├── package.json            # Package configuration
+├── README.md               # Documentation
+├── tsconfig.json           # TypeScript configuration
+├── epubcheck/              # EPUBCheck for EPUB validation (not included in repo)
+├── scripts/                # Helper scripts
+│   ├── build.ts            # Full optimization pipeline script (with --clean option)
+│   ├── create-epub.ts      # EPUB packaging script
+│   ├── minify-dist.js      # Smart minification script for JavaScript files
+│   ├── fix/                # General fix scripts (modular)
 │   │   ├── fix-span-tags.ts
 │   │   ├── fix-xml.ts
-│   │   └── index.ts         # Entry point for all general fixes
-│   ├── opf/                 # OPF-specific modifications (fixes, options, or features)
+│   │   └── index.ts        # Entry point for all general fixes
+│   ├── opf/                # OPF-specific modifications (fixes, options, or features)
 │   │   ├── add-cover-image-property.ts
 │   │   ├── update-cover-linear.ts
-│   │   └── update-opf.ts    # Entry point for all OPF fixes
-│   ├── utils.ts             # Shared utilities for scripts
-│   └── validate-epub.ts     # EPUB validation script
-└── src/                     # Source code directory
-    ├── index.ts             # Main application logic
-    ├── cli.ts               # Command-line interface
-    ├── processors/          # Processing modules
+│   │   └── update-opf.ts   # Entry point for all OPF fixes
+│   ├── utils.ts            # Shared utilities for scripts
+│   └── validate-epub.ts    # EPUB validation script
+└── src/                    # Source code directory
+    ├── index.ts            # Main application logic
+    ├── cli.ts              # Command-line interface
+    ├── processors/         # Processing modules
     │   ├── archive-processor.ts  # EPUB extraction/compression
     │   ├── html-processor.ts     # HTML/CSS processing
     │   └── image-processor.ts    # Image optimization
-    └── utils/               # Utility modules
-        └── config.ts        # Application configuration
+    └── utils/              # Utility modules
+        └── config.ts       # Application configuration
 ```
+
+## Development Information
+
+This project is built with TypeScript and uses modern ESM modules. Here's how the development workflow works:
+
+### Source and Build Separation
+
+- TypeScript source files are in the `src/` and `scripts/` directories
+- The compiled JavaScript output goes to the `dist/` directory
+- You must run `pnpm build` before running any `optimize` commands
+
+### Import Structure
+
+- Source files use extensionless imports (e.g., `import { foo } from './foo'`)
+- The build process adds `.js` extensions to imports in the compiled output for Node.js compatibility
+
+### Development and Production
+
+- For development: Make changes to TypeScript files and run `pnpm build:dev`
+- For production: Run `pnpm build` to create a minified, optimized `dist/` directory
+- The `optimize` commands run against the compiled code in `dist/`
+
+## Linting and Formatting
+
+- **Linting:**
+  - `pnpm run lint` lints all TypeScript files in the `src` and `scripts` directories.
+  - `pnpm run lint:fix` does the same, but also auto-fixes issues where possible.
+- **Formatting:**
+  - `pnpm run format` auto-formats all `.ts`, `.json`, and `.md` files in the project using Prettier.
+  - `pnpm run format:check` checks formatting without making changes (useful for CI).
+
+## Minification
+
+The production build process includes:
+
+- TypeScript compilation
+- ESM import path fixing
+- Smart JavaScript minification with Terser:
+  - Minifies all files in both `src/` and `scripts/` directories
+  - Uses a skip list to avoid minifying problematic files with syntax incompatibilities
+  - Maintains class names and function names for better error reporting
+  - Compresses and mangles variables for reduced file size
+- Source maps for debugging
+- Comment removal
+
+> **Note:** The minification script (`minify:safe`) is run using `ts-node` directly on the TypeScript source (`scripts/minify-dist.ts`), not on compiled JavaScript. This ensures the latest TypeScript logic is always used for minification.
 
 ## Modular Fix Scripts
 
@@ -148,7 +223,7 @@ epub-optimizer/
 3. **Missing Dependencies**: If you get module not found errors, ensure you've run `npm install` or `pnpm install`.
 4. **Large Files**: For very large EPUB files, you might need to increase Node.js memory:
    ```
-   NODE_OPTIONS=--max-old-space-size=4096 pnpm build
+   NODE_OPTIONS=--max-old-space-size=4096 pnpm optimize
    ```
 
 ### Getting Help
@@ -165,6 +240,7 @@ If you encounter issues not covered in this documentation, please [open an issue
 - sharp - For image optimization (JPEG, PNG, WebP, GIF, AVIF, SVG)
 - unzipper - For extracting EPUB files
 - yargs - For command-line argument parsing
+- terser - For JavaScript minification (dev dependency)
 - epubcheck - For EPUB validation (external dependency)
 - eslint - For code linting with TypeScript support (dev dependency)
 - prettier - For code formatting (dev dependency)

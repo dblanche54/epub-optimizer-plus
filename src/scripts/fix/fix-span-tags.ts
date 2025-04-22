@@ -4,9 +4,11 @@
 import fs from "fs-extra";
 import path from "node:path";
 import * as cheerio from "cheerio";
-import config from "../../src/utils/config.ts";
+import config from "../../utils/config.js";
 
-const extractedDir = path.join(process.cwd(), config.tempDir);
+// Use the project root directory for file paths
+const projectRoot = process.cwd();
+const extractedDir = path.join(projectRoot, config.tempDir);
 const opsDir = path.join(extractedDir, "OPS");
 
 async function main() {
