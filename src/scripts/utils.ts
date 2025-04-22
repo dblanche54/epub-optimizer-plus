@@ -2,7 +2,7 @@ import { execSync } from "node:child_process";
 import path from "node:path";
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
-import config from "../src/utils/config.ts";
+import config from "../utils/config.js";
 
 /**
  * Defines the shape of args returned by parseArgs
@@ -19,7 +19,6 @@ export interface CommandArgs {
 export interface InputFileInfo {
   inputFile: string;
   inputBasename: string;
-  fixedFile: string;
   args: string;
 }
 
@@ -65,9 +64,8 @@ export function getInputFileInfo(): InputFileInfo {
     inputFile = inputArg[1];
   }
   const inputBasename = path.basename(inputFile, ".epub");
-  const fixedFile = `fixed_${inputBasename}.epub`;
 
-  return { inputFile, inputBasename, fixedFile, args };
+  return { inputFile, inputBasename, args };
 }
 
 /**

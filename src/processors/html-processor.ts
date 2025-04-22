@@ -3,7 +3,7 @@ import path from "node:path";
 import { minify } from "html-minifier-terser";
 import CleanCSS from "clean-css";
 import * as cheerio from "cheerio";
-import config from "../utils/config.ts";
+import config from "../utils/config.js";
 
 /**
  * Process HTML and CSS files in a directory recursively

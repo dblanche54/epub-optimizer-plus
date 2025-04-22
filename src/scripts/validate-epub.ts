@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
-import config from "../src/utils/config.ts";
-import { parseArgs, handleError } from "./utils.ts";
+import config from "../utils/config.js";
+import { parseArgs, handleError } from "./utils.js";
 
 // Parse command line arguments
 const argv = parseArgs(false, true);
