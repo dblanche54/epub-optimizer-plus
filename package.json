@@ -8,7 +8,7 @@
     "# Build commands": "# Complete pipeline processes",
     "build": "pnpm run build:prod",
     "build:dev": "tsc",
-    "build:prod": "pnpm run build:dev && pnpm run minify:safe",
+    "build:prod": "rm -rf dist && tsc -p tsconfig.prod.json && pnpm run minify:safe",
     "minify:safe": "ts-node scripts/minify-dist.ts",
     "optimize": "node dist/src/pipeline.js",
     "optimize:clean": "node dist/src/pipeline.js --clean",

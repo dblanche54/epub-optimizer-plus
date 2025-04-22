@@ -185,6 +185,12 @@ This project is built with TypeScript and uses modern ESM modules. Here's how th
 
 - TypeScript source files are in the `src/` and `scripts/` directories
 - The compiled JavaScript output goes to the `dist/` directory
+- The production build is highly optimized:
+  - Test files (`*.test.ts`) are completely excluded
+  - No TypeScript declaration files (\*.d.ts) are generated
+  - No source maps are included
+  - JavaScript files are minified using Terser
+  - Comments are removed from the final code
 - You must run `pnpm build` before running any `optimize` commands
 
 ### Import Structure
@@ -195,6 +201,11 @@ This project is built with TypeScript and uses modern ESM modules. Here's how th
 ### Testing
 
 - Test files are colocated with the source files they test (e.g., `src/index.ts` and `src/index.test.ts`)
+- This "side-by-side" approach has several advantages:
+  - Easy to locate tests for any module
+  - Promotes keeping tests updated when changing implementation
+  - Makes it clear which parts of the codebase are covered by tests
+  - Simplifies relative imports between tests and implementation
 - Tests are written using Vitest, a modern test framework compatible with Jest syntax
 - Run tests with `pnpm test` (watch mode) or `pnpm test:run` (single run)
 - Run tests with coverage using `pnpm test:coverage`
