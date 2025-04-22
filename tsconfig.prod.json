@@ -12,5 +12,6 @@
     "**/__tests__/**",
     "vitest.config.ts",
     "coverage"
-  ]
+  ],
+  "include": ["src/**/*", "optimize-epub.ts"]
 }
