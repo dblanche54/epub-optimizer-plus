@@ -1,4 +1,33 @@
-# About This Project
+## Development Roadmap
+
+- Add cover image to the summary in .opf and toc.xhtml automatically
+- Add GitHub Actions pipeline for CI/CD
+- Publish as an npm package
+
+# EPUB Optimizer
+
+A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and recompressing the archive. This tool can significantly reduce EPUB file sizes while maintaining compatibility with e-readers and ensuring EPUB specification compliance.
+
+![EPUB Optimizer Terminal Output](assets/epub-optimizer-demo.png)
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [About This Project](#about-this-project)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [EPUBCheck Setup](#epubcheck-setup)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Development Information](#development-information)
+- [Linting and Formatting](#linting-and-formatting)
+- [Minification](#minification)
+- [Modular Fix Scripts](#modular-fix-scripts)
+- [Troubleshooting](#troubleshooting)
+- [Dependencies](#dependencies)
+- [License](#license)
+
+## About This Project
 
 I use this project to optimize EPUB files that I create using Pages on Mac. My workflow is:
 
@@ -13,11 +42,13 @@ After exporting, my original EPUB file is about 24.4MB. I use this script to opt
 
 This script is designed for this workflow (I don't use any other tools), but anyone who wants to optimize their EPUB file is welcome to try it! If you have any questions or issues, let me know. Enjoy! :)
 
-# EPUB Optimizer
+## Quick Start
 
-A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and recompressing the archive. This tool can significantly reduce EPUB file sizes while maintaining compatibility with e-readers and ensuring EPUB specification compliance.
-
-![EPUB Optimizer Terminal Output](assets/epub-optimizer-demo.png)
+```bash
+pnpm install
+pnpm build
+pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
+```
 
 ## Features
 
