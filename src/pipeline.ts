@@ -28,7 +28,7 @@ runScript("fix/index.js", filteredArgs, "General Fixes");
 runScript("opf/update-opf.js", filteredArgs, "OPF Fixes");
 
 // Step 4: Create EPUB
-runScript("create-epub-modern.js", filteredArgs, "Create EPUB");
+runScript("create-epub.js", filteredArgs, "Create EPUB");
 
 // Step 5: Validate EPUB
 runScript("validate-epub.js", filteredArgs, "Validate EPUB");

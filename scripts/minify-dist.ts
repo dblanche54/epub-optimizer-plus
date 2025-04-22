@@ -31,13 +31,20 @@ async function minifyFile(filePath: string): Promise<boolean> {
     const code = await readFile(filePath, "utf8");
 
     const result = await minify(code, {
-      compress: true,
+      compress: {
+        passes: 2,
+        drop_console: false,
+        drop_debugger: true,
+      },
       mangle: true,
       module: true,
       sourceMap: false,
       toplevel: true,
       keep_classnames: true,
       keep_fnames: true,
+      output: {
+        comments: false,
+      },
     });
 
     if (result.code) {

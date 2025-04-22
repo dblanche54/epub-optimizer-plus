@@ -1,4 +1,33 @@
-# About This Project
+## Development Roadmap
+
+- Add cover image to the summary in .opf and toc.xhtml automatically
+- Add GitHub Actions pipeline for CI/CD
+- Publish as an npm package
+
+# EPUB Optimizer
+
+A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and recompressing the archive. This tool can significantly reduce EPUB file sizes while maintaining compatibility with e-readers and ensuring EPUB specification compliance.
+
+![EPUB Optimizer Terminal Output](assets/epub-optimizer-demo.png)
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [About This Project](#about-this-project)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [EPUBCheck Setup](#epubcheck-setup)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Development Information](#development-information)
+- [Linting and Formatting](#linting-and-formatting)
+- [Minification](#minification)
+- [Modular Fix Scripts](#modular-fix-scripts)
+- [Troubleshooting](#troubleshooting)
+- [Dependencies](#dependencies)
+- [License](#license)
+
+## About This Project
 
 I use this project to optimize EPUB files that I create using Pages on Mac. My workflow is:
 
@@ -13,11 +42,13 @@ After exporting, my original EPUB file is about 24.4MB. I use this script to opt
 
 This script is designed for this workflow (I don't use any other tools), but anyone who wants to optimize their EPUB file is welcome to try it! If you have any questions or issues, let me know. Enjoy! :)
 
-# EPUB Optimizer
+## Quick Start
 
-A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and recompressing the archive. This tool can significantly reduce EPUB file sizes while maintaining compatibility with e-readers and ensuring EPUB specification compliance.
-
-![EPUB Optimizer Terminal Output](assets/epub-optimizer-demo.png)
+```bash
+pnpm install
+pnpm build
+pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
+```
 
 ## Features
 
@@ -30,6 +61,7 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 - Modular fix scripts for EPUB and OPF structure
 - Command-line interface with customizable options
 - File size comparison reporting
+- Comprehensive test suite with high coverage
 
 ## Requirements
 
@@ -61,7 +93,7 @@ This tool requires EPUBCheck to validate EPUB files. Follow these steps:
 1. Download EPUBCheck from the [official website](https://www.w3.org/publishing/epubcheck/)
 2. Extract the downloaded zip file
 3. Copy the extracted `epubcheck-x.x.x` folder (where x.x.x is the version) to the root of this project
-4. Make sure the folder is named `epubcheck` to match the path in `epubcheckPath` in src/utils/config.js
+4. Make sure the folder is named `epubcheck` to match the path in `epubcheckPath` in src/utils/config.ts
 
 ## Usage
 
@@ -76,6 +108,9 @@ This tool requires EPUBCheck to validate EPUB files. Follow these steps:
 | `optimize`       | Run optimizer, keeping temp files                                                 |
 | `optimize:clean` | Run optimizer, removing temp files afterward                                      |
 | `cleanup`        | Remove temporary files                                                            |
+| `test`           | Run tests in watch mode                                                           |
+| `test:run`       | Run tests once and exit                                                           |
+| `test:coverage`  | Run tests with coverage report                                                    |
 | `lint`           | Lint TypeScript files in src and scripts directories                              |
 | `lint:fix`       | Lint and auto-fix TypeScript files in src and scripts                             |
 | `format`         | Auto-format all .ts, .json, and .md files with Prettier                           |
@@ -94,6 +129,11 @@ pnpm build:prod
 
 # Then run the optimizer
 pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
+
+# Run tests
+pnpm test
+# or run tests once and exit
+pnpm test:run
 ```
 
 ### Command Line Options
@@ -135,31 +175,38 @@ epub-optimizer/
 ├── package.json            # Package configuration
 ├── README.md               # Documentation
 ├── tsconfig.json           # TypeScript configuration
+├── vitest.config.ts        # Test configuration
 ├── epubcheck/              # EPUBCheck for EPUB validation (not included in repo)
-├── scripts/                # Helper scripts
-│   ├── build.ts            # Full optimization pipeline script (with --clean option)
-│   ├── create-epub.ts      # EPUB packaging script
-│   ├── minify-dist.js      # Smart minification script for JavaScript files
-│   ├── fix/                # General fix scripts (modular)
-│   │   ├── fix-span-tags.ts
-│   │   ├── fix-xml.ts
-│   │   └── index.ts        # Entry point for all general fixes
-│   ├── opf/                # OPF-specific modifications (fixes, options, or features)
-│   │   ├── add-cover-image-property.ts
-│   │   ├── update-cover-linear.ts
-│   │   └── update-opf.ts   # Entry point for all OPF fixes
-│   ├── utils.ts            # Shared utilities for scripts
-│   └── validate-epub.ts    # EPUB validation script
+├── scripts/                # Build and maintenance scripts
+│   └── minify-dist.ts      # Smart minification script for JavaScript files
 └── src/                    # Source code directory
     ├── index.ts            # Main application logic
     ├── cli.ts              # Command-line interface
+    ├── pipeline.ts         # Optimization pipeline
+    ├── types.ts            # TypeScript type definitions
+    ├── types.d.ts          # Additional TypeScript declarations
     ├── processors/         # Processing modules
-    │   ├── archive-processor.ts  # EPUB extraction/compression
-    │   ├── html-processor.ts     # HTML/CSS processing
-    │   └── image-processor.ts    # Image optimization
+    │   ├── archive-processor.ts    # EPUB extraction/compression
+    │   ├── html-processor.ts       # HTML/CSS processing
+    │   └── image-processor.ts      # Image optimization
+    ├── scripts/            # Processing scripts
+    │   ├── build.ts        # Full optimization pipeline script
+    │   ├── create-epub.ts  # EPUB packaging script
+    │   ├── validate-epub.ts # EPUB validation script
+    │   ├── utils.ts        # Shared utilities for scripts
+    │   ├── fix/            # General fix scripts (modular)
+    │   │   ├── fix-span-tags.ts
+    │   │   ├── fix-xml.ts
+    │   │   └── index.ts    # Entry point for all general fixes
+    │   └── opf/            # OPF-specific modifications
+    │       ├── add-cover-image-property.ts
+    │       ├── update-cover-linear.ts
+    │       └── update-opf.ts # Entry point for all OPF fixes
     └── utils/              # Utility modules
         └── config.ts       # Application configuration
 ```
+
+Note: Test files are colocated with their respective source files but omitted from this structure for clarity.
 
 ## Development Information
 
@@ -169,12 +216,31 @@ This project is built with TypeScript and uses modern ESM modules. Here's how th
 
 - TypeScript source files are in the `src/` and `scripts/` directories
 - The compiled JavaScript output goes to the `dist/` directory
+- The production build is highly optimized:
+  - Test files (`*.test.ts`) are completely excluded
+  - No TypeScript declaration files (\*.d.ts) are generated
+  - No source maps are included
+  - JavaScript files are minified using Terser
+  - Comments are removed from the final code
 - You must run `pnpm build` before running any `optimize` commands
 
 ### Import Structure
 
 - Source files use extensionless imports (e.g., `import { foo } from './foo'`)
 - The build process adds `.js` extensions to imports in the compiled output for Node.js compatibility
+
+### Testing
+
+- Test files are colocated with the source files they test (e.g., `src/index.ts` and `src/index.test.ts`)
+- This "side-by-side" approach has several advantages:
+  - Easy to locate tests for any module
+  - Promotes keeping tests updated when changing implementation
+  - Makes it clear which parts of the codebase are covered by tests
+  - Simplifies relative imports between tests and implementation
+- Tests are written using Vitest, a modern test framework compatible with Jest syntax
+- Run tests with `pnpm test` (watch mode) or `pnpm test:run` (single run)
+- Run tests with coverage using `pnpm test:coverage`
+- Tests run in Node.js environment and mock external dependencies
 
 ### Development and Production
 
@@ -209,8 +275,8 @@ The production build process includes:
 
 ## Modular Fix Scripts
 
-- **General fixes** (e.g. span tags, XML/XHTML) are managed in `scripts/fix/` and run via `scripts/fix/index.ts`.
-- **OPF-specific modifications** (fixes, options, or features) are managed in `scripts/opf/` and run via `scripts/opf/update-opf.ts`.
+- **General fixes** (e.g. span tags, XML/XHTML) are managed in `src/scripts/fix/` and run via `src/scripts/fix/index.ts`.
+- **OPF-specific modifications** (fixes, options, or features) are managed in `src/scripts/opf/` and run via `src/scripts/opf/update-opf.ts`.
 - To enable/disable a fix, comment or uncomment the relevant `execSync` line in the corresponding index/entry file.
 - To add a new fix, create a new script in the appropriate folder and add an `execSync` call in the index/entry file.
 
@@ -224,6 +290,10 @@ The production build process includes:
 4. **Large Files**: For very large EPUB files, you might need to increase Node.js memory:
    ```
    NODE_OPTIONS=--max-old-space-size=4096 pnpm optimize
+   ```
+5. **Test Environment Issues**: If tests are failing with process.exit errors, make sure to set `NODE_ENV=test` when running tests:
+   ```
+   NODE_ENV=test pnpm test
    ```
 
 ### Getting Help
@@ -241,8 +311,8 @@ If you encounter issues not covered in this documentation, please [open an issue
 - unzipper - For extracting EPUB files
 - yargs - For command-line argument parsing
 - terser - For JavaScript minification (dev dependency)
-- epubcheck - For EPUB validation (external dependency)
-- eslint - For code linting with TypeScript support (dev dependency)
+- vitest - For testing (dev dependency)
+- typescript-eslint - For linting TypeScript code (dev dependency)
 - prettier - For code formatting (dev dependency)
 
 ## License

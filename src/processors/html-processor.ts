@@ -77,4 +77,4 @@ async function minifyCSS(filePath: string): Promise<void> {
   }
 }
 
-export { processHTML };
+export { processHTML, minifyHTML, minifyCSS };
