@@ -35,7 +35,7 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 I use this project to optimize EPUB files that I create using Pages on Mac. My workflow is:
 
 - Write (text and images) in Pages.
-- Insert a TOC page via the menu: "Insert > Table of Contents > Document". (In the script, I update the EPUB structure files with customizations, adding the cover title as a clickable item in both the book’s internal summary page and the navigation table of contents.)
+- Insert a TOC page via the menu: "Insert > Table of Contents > Document". (In the script, I update the EPUB structure files with customizations, adding the cover title as a clickable item in both the book's internal summary page and the navigation table of contents.)
 - Export my work as an EPUB file.
 - Fill in the required information.
 - For "Cover": check the option "Use the first page as the book cover image".
@@ -58,6 +58,9 @@ pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
 - HTML/XHTML minification (removes whitespace, comments, and unnecessary code)
 - CSS optimization (minifies and combines rules)
 - Image compression (JPEG, PNG, WebP, GIF, AVIF, SVG optimization without significant quality loss)
+- PNG to JPEG conversion for non-transparent images (significantly reduces file size)
+- JavaScript minification (reduces script size)
+- Font subsetting (reduces font file sizes by including only used characters)
 - Archive recompression (more efficient zip packaging)
 - EPUB validation against the EPUB specification
 - XML/XHTML validation fixing (automatically repairs common validation issues)
