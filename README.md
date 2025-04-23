@@ -1,7 +1,3 @@
-## Development Roadmap
-
-- Add cover image to the summary in .opf and toc.xhtml automatically
-
 # EPUB Optimizer
 
 A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and recompressing the archive. This tool can significantly reduce EPUB file sizes while maintaining compatibility with e-readers and ensuring EPUB specification compliance.
@@ -11,16 +7,25 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [Features](#features)
 - [About This Project](#about-this-project)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [EPUBCheck Setup](#epubcheck-setup)
 - [Usage](#usage)
+  - [Available Scripts](#available-scripts)
+  - [Modern Workflow](#modern-workflow)
+  - [Command Line Options](#command-line-options)
 - [Project Structure](#project-structure)
 - [Development Information](#development-information)
+  - [Source and Build Separation](#source-and-build-separation)
+  - [Import Structure](#import-structure)
+  - [Testing](#testing)
+  - [Development and Production](#development-and-production)
 - [Linting and Formatting](#linting-and-formatting)
 - [Minification](#minification)
 - [Modular Fix Scripts](#modular-fix-scripts)
+  - [Customizing the Optimization Process](#customizing-the-optimization-process)
 - [Troubleshooting](#troubleshooting)
 - [Dependencies](#dependencies)
 - [License](#license)
@@ -30,7 +35,7 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 I use this project to optimize EPUB files that I create using Pages on Mac. My workflow is:
 
 - Write (text and images) in Pages.
-- Insert a TOC page via the menu: "Insert > Table of Contents > Document". (In the script, I update the generated `epb.opf` and `toc.xhtml` files to add the book cover as a clickable item in the summary.)
+- Insert a TOC page via the menu: "Insert > Table of Contents > Document". (In the script, I update the EPUB structure files with customizations, adding the cover title as a clickable item in both the book's internal summary page system and navigation table of contents.)
 - Export my work as an EPUB file.
 - Fill in the required information.
 - For "Cover": check the option "Use the first page as the book cover image".
@@ -38,7 +43,7 @@ I use this project to optimize EPUB files that I create using Pages on Mac. My w
 
 After exporting, my original EPUB file is about 24.4MB. I use this script to optimize it (resulting in about 7.3MB). Then I test the result in Apple Books, Kindle Previewer, etc.
 
-This script is designed for this workflow (I don't use any other tools), but anyone who wants to optimize their EPUB file is welcome to try it! If you have any questions or issues, let me know. Enjoy! :)
+This script is designed for this workflow (I don't use any other tools), but anyone who wants to optimize their EPUB file is welcome to try it! If you have customization needs different from mine, check the [Modular Fix Scripts](#modular-fix-scripts) section to learn how to enable/disable specific features. If you have any questions or issues, let me know. Enjoy! :)
 
 ## Quick Start
 
@@ -196,10 +201,12 @@ epub-optimizer/
     │   │   ├── fix-span-tags.ts
     │   │   ├── fix-xml.ts
     │   │   └── index.ts    # Entry point for all general fixes
-    │   └── opf/            # OPF-specific modifications
+    │   └── ops/            # EPUB structure modifications
     │       ├── add-cover-image-property.ts
     │       ├── update-cover-linear.ts
-    │       └── update-opf.ts # Entry point for all OPF fixes
+    │       ├── update-toc-with-cover.ts
+    │       ├── update-summary-page.ts
+    │       └── update-structure.ts # Entry point for all structure updates
     └── utils/              # Utility modules
         └── config.ts       # Application configuration
 ```
@@ -274,45 +281,54 @@ The production build process includes:
 ## Modular Fix Scripts
 
 - **General fixes** (e.g. span tags, XML/XHTML) are managed in `src/scripts/fix/` and run via `src/scripts/fix/index.ts`.
-- **OPF-specific modifications** (fixes, options, or features) are managed in `src/scripts/opf/` and run via `src/scripts/opf/update-opf.ts`.
-- To enable/disable a fix, comment or uncomment the relevant `execSync` line in the corresponding index/entry file.
-- To add a new fix, create a new script in the appropriate folder and add an `execSync` call in the index/entry file.
+- **Structure modifications** (TOC, navigation, summary page) are managed in `src/scripts/ops/` and run via `src/scripts/ops/update-structure.ts`.
+- To enable/disable a fix, comment or uncomment the relevant `runCommand` line in the corresponding index/entry file.
+- To add a new fix, create a new script in the appropriate folder and add a `runCommand` call in the index/entry file.
+
+### Customizing the Optimization Process
+
+If you don't need all the features I've implemented for my own workflow, you can easily customize the process. Here are some examples:
+
+- **Example: Skip adding cover to TOC** - To do this, you'd comment out the line with `update-toc-with-cover.js` in `src/scripts/ops/update-structure.ts`
+- **Example: Skip adding cover to summary page** - Comment out the line with `update-summary-page.js` in `src/scripts/ops/update-structure.ts`
+- **Example: Skip setting cover as first page** - Comment out the line with `update-cover-linear.js` in `src/scripts/ops/update-structure.ts`
+- **Example: Disable specific XML/HTML fixes** - Comment out relevant script calls in `src/scripts/fix/index.ts`
+
+After making any customizations, rebuild the project with `pnpm build` to apply your changes.
 
 ## Troubleshooting
 
-### Common Issues
-
-1. **"Error: Unable to access jarfile"**: Make sure Java is installed and EPUBCheck is properly set up in the project root.
-2. **XML/XHTML Validation Errors**: If validation fails after optimization, check the error messages and look at the XML validation issues. The tool automatically applies common fixes during the standard build process.
-3. **Missing Dependencies**: If you get module not found errors, ensure you've run `npm install` or `pnpm install`.
-4. **Large Files**: For very large EPUB files, you might need to increase Node.js memory:
-   ```
-   NODE_OPTIONS=--max-old-space-size=4096 pnpm optimize
-   ```
-5. **Test Environment Issues**: If tests are failing with process.exit errors, make sure to set `NODE_ENV=test` when running tests:
-   ```
-   NODE_ENV=test pnpm test
-   ```
-
-### Getting Help
-
-If you encounter issues not covered in this documentation, please [open an issue](https://github.com/kiki-le-singe/epub-optimizer/issues) on the project repository.
+If you encounter any issues, please check the [GitHub issues page](https://github.com/kiki-le-singe/epub-optimizer/issues) for existing issues or open a new one.
 
 ## Dependencies
 
-- archiver - For creating compressed archives
-- cheerio - For robust HTML/XHTML DOM manipulation
-- clean-css - For CSS minification
-- fs-extra - Enhanced file system operations
-- html-minifier-terser - For HTML minification
-- sharp - For image optimization (JPEG, PNG, WebP, GIF, AVIF, SVG)
-- unzipper - For extracting EPUB files
-- yargs - For command-line argument parsing
-- terser - For JavaScript minification (dev dependency)
-- vitest - For testing (dev dependency)
-- typescript-eslint - For linting TypeScript code (dev dependency)
-- prettier - For code formatting (dev dependency)
+This project uses the following dependencies:
+
+### System Requirements
+
+- Node.js 14 or higher
+- Java Runtime Environment (JRE) 1.7 or higher (for EPUBCheck validation)
+- pnpm or npm for package management
+
+### Key npm Packages
+
+- **archiver** - For creating compressed archives
+- **cheerio** - For robust HTML/XHTML DOM manipulation
+- **clean-css** - For CSS minification
+- **fs-extra** - Enhanced file system operations
+- **html-minifier-terser** - For HTML minification
+- **sharp** - For image optimization (JPEG, PNG, WebP, GIF, AVIF, SVG)
+- **unzipper** - For extracting EPUB files
+- **yargs** - For command-line argument parsing
+
+### Development Dependencies
+
+- **typescript** - For static typing and compilation
+- **terser** - For JavaScript minification
+- **vitest** - For testing
+- **typescript-eslint** - For linting TypeScript code
+- **prettier** - For code formatting
 
 ## License
 
-MIT
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.

@@ -4,6 +4,10 @@ const config = {
   outputEPUB: "mybook_opt.epub",
   tempDir: "temp_epub",
 
+  // Language settings
+  lang: "fr", // Current language (fr = French, en = English)
+  defaultLang: "en",
+
   // HTML optimization options
   htmlOptions: {
     collapseWhitespace: true,
@@ -33,6 +37,16 @@ const config = {
 
   // EPUBCheck path
   epubcheckPath: "epubcheck/epubcheck.jar",
+
+  // UI Localization
+  labels: {
+    fr: {
+      cover: "Couverture",
+    },
+    en: {
+      cover: "Cover",
+    },
+  },
 };
 
 export default config;

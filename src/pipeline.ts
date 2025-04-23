@@ -25,7 +25,7 @@ runScript("../../optimize-epub.js", filteredArgs, "Optimize EPUB");
 runScript("fix/index.js", filteredArgs, "General Fixes");
 
 // Step 3: OPF Fixes
-runScript("opf/update-opf.js", filteredArgs, "OPF Fixes");
+runScript("ops/update-structure.js", filteredArgs, "EPUB Structure Updates");
 
 // Step 4: Create EPUB
 runScript("create-epub.js", filteredArgs, "Create EPUB");
