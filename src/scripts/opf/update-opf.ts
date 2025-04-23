@@ -11,6 +11,12 @@ try {
   // on the first page of the book.
   runCommand("node dist/src/scripts/opf/update-cover-linear.js");
 
+  // update_toc_with_cover: Add the cover image to the table of contents in both toc.xhtml and epb.ncx
+  runCommand("node dist/src/scripts/opf/update-toc-with-cover.js");
+
+  // update_summary_page: Add the cover to the summary page and remove the self-reference
+  runCommand("node dist/src/scripts/opf/update-summary-page.js");
+
   console.log("All OPF fixes applied.");
 } catch (error) {
   handleError(error);
