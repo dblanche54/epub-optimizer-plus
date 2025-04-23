@@ -73,6 +73,41 @@ describe("EPUB Optimization Integration Tests", () => {
 
     // Verify temporary files were cleaned up
     expect(await fs.pathExists(extractDir)).toBe(false);
+
+    // --- NEW: Check for SVG optimization and lazy loading ---
+    // Extract the optimized EPUB to a temp dir to inspect contents
+    const unzipDir = path.join(tempDir, "unzipped");
+    await fs.ensureDir(unzipDir);
+    // Use unzipper to extract
+    const unzipper = await import("unzipper");
+    await fs
+      .createReadStream(mockOutputEpub)
+      .pipe(unzipper.Extract({ path: unzipDir }))
+      .promise();
+    // Check for SVG minification (if any SVGs present)
+    const opsImages = path.join(unzipDir, "OPS", "images");
+    if (await fs.pathExists(opsImages)) {
+      const files = await fs.readdir(opsImages);
+      for (const file of files) {
+        if (file.endsWith(".svg")) {
+          const svgContent = await fs.readFile(path.join(opsImages, file), "utf8");
+          expect(svgContent).not.toContain("<!--"); // Comments should be removed
+        }
+      }
+    }
+    // Check for loading="lazy" in XHTML files
+    const opsDir = path.join(unzipDir, "OPS");
+    if (await fs.pathExists(opsDir)) {
+      const files = await fs.readdir(opsDir);
+      for (const file of files) {
+        if (file.endsWith(".xhtml")) {
+          const xhtml = await fs.readFile(path.join(opsDir, file), "utf8");
+          if (xhtml.includes("<img")) {
+            expect(xhtml).toContain('loading="lazy"');
+          }
+        }
+      }
+    }
   });
 
   it("optimizes an EPUB and preserves temporary files when clean=false", async () => {

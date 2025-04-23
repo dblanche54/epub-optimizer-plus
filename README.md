@@ -35,7 +35,7 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 I use this project to optimize EPUB files that I create using Pages on Mac. My workflow is:
 
 - Write (text and images) in Pages.
-- Insert a TOC page via the menu: "Insert > Table of Contents > Document". (In the script, I update the EPUB structure files with customizations, adding the cover title as a clickable item in both the book’s internal summary page and the navigation table of contents.)
+- Insert a TOC page via the menu: "Insert > Table of Contents > Document". (In the script, I update the EPUB structure files with customizations, adding the cover title as a clickable item in both the book's internal summary page and the navigation table of contents.)
 - Export my work as an EPUB file.
 - Fill in the required information.
 - For "Cover": check the option "Use the first page as the book cover image".
@@ -58,6 +58,12 @@ pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
 - HTML/XHTML minification (removes whitespace, comments, and unnecessary code)
 - CSS optimization (minifies and combines rules)
 - Image compression (JPEG, PNG, WebP, GIF, AVIF, SVG optimization without significant quality loss)
+- PNG to JPEG conversion for non-transparent images (significantly reduces file size)
+- JavaScript minification (reduces script size)
+- **Font subsetting** (reduces font file sizes by including only used characters; may not work on encrypted or unsupported fonts)
+- **SVG optimization** (minifies SVG files using SVGO)
+- **Image downscaling** (optionally resizes large images to a max dimension for e-reader compatibility)
+- **Lazy loading for images** (adds `loading="lazy"` to all `<img>` tags in XHTML for EPUB3 readers)
 - Archive recompression (more efficient zip packaging)
 - EPUB validation against the EPUB specification
 - XML/XHTML validation fixing (automatically repairs common validation issues)
@@ -65,6 +71,11 @@ pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
 - Command-line interface with customizable options
 - File size comparison reporting
 - Comprehensive test suite with high coverage
+
+> **Note:**
+>
+> - Font subsetting is attempted on all fonts, but some fonts (e.g., encrypted or certain OTF/TTF formats) may not be supported by the subsetting library and will be skipped.
+> - SVG optimization, image downscaling, and lazy loading are fully automated and require no manual intervention.
 
 ## Requirements
 
