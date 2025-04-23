@@ -60,7 +60,10 @@ pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
 - Image compression (JPEG, PNG, WebP, GIF, AVIF, SVG optimization without significant quality loss)
 - PNG to JPEG conversion for non-transparent images (significantly reduces file size)
 - JavaScript minification (reduces script size)
-- Font subsetting (reduces font file sizes by including only used characters)
+- **Font subsetting** (reduces font file sizes by including only used characters; may not work on encrypted or unsupported fonts)
+- **SVG optimization** (minifies SVG files using SVGO)
+- **Image downscaling** (optionally resizes large images to a max dimension for e-reader compatibility)
+- **Lazy loading for images** (adds `loading="lazy"` to all `<img>` tags in XHTML for EPUB3 readers)
 - Archive recompression (more efficient zip packaging)
 - EPUB validation against the EPUB specification
 - XML/XHTML validation fixing (automatically repairs common validation issues)
@@ -68,6 +71,11 @@ pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
 - Command-line interface with customizable options
 - File size comparison reporting
 - Comprehensive test suite with high coverage
+
+> **Note:**
+>
+> - Font subsetting is attempted on all fonts, but some fonts (e.g., encrypted or certain OTF/TTF formats) may not be supported by the subsetting library and will be skipped.
+> - SVG optimization, image downscaling, and lazy loading are fully automated and require no manual intervention.
 
 ## Requirements
 

@@ -2,6 +2,8 @@ import fs from "fs-extra";
 import path from "node:path";
 import * as cheerio from "cheerio";
 import * as glob from "glob";
+import * as fontkit from "fontkit";
+import subsetFont from "subset-font";
 
 /**
  * Subset font files to include only characters used in the EPUB content
@@ -38,14 +40,13 @@ async function subsetFonts(epubDir: string): Promise<void> {
     let allText = "";
     for (const file of xhtmlFiles) {
       const content = await fs.readFile(file, "utf8");
-      // Load with cheerio and extract text
       const $ = cheerio.load(content, { xmlMode: true });
-      // Get text content and remove tags
       allText += $("body").text();
     }
 
     // Create a set of unique characters
     const uniqueChars = new Set(allText);
+    const uniqueCharsString = Array.from(uniqueChars).join("");
     console.log(`Found ${uniqueChars.size} unique characters in EPUB content`);
 
     // Get all font files
@@ -57,61 +58,48 @@ async function subsetFonts(epubDir: string): Promise<void> {
 
     console.log(`Found ${fontFiles.length} font files to process`);
 
+    // Minimal interface for font objects with hasGlyphForCodePoint
+    interface FontLike {
+      hasGlyphForCodePoint: (codePoint: number) => boolean;
+    }
+
+    function isFontLike(obj: unknown): obj is FontLike {
+      return (
+        typeof obj === "object" &&
+        obj !== null &&
+        typeof (obj as { hasGlyphForCodePoint?: unknown }).hasGlyphForCodePoint === "function"
+      );
+    }
+
     // Process each font file
     for (const fontFile of fontFiles) {
       try {
-        // Here we would normally use fontkit and subset-font libraries
-        // But since we're demonstrating the concept without external dependencies:
-
-        // Get font file size before
-        const fontStats = await fs.stat(fontFile);
-        const originalSize = fontStats.size;
-
-        // Log the potential savings
-        // In a real implementation with fontkit, we would actually subset the font
-        const estimatedSavings = Math.round(originalSize * 0.6); // Estimate 60% reduction
-        console.log(
-          `Font ${path.basename(fontFile)}: Could reduce from ${formatBytes(originalSize)} to ~${formatBytes(originalSize - estimatedSavings)} (${Math.round((estimatedSavings / originalSize) * 100)}% reduction)`
-        );
-
-        /* 
-        // Real implementation would look like this:
-        
-        const font = fontkit.openSync(fontFile);
-        const glyphs = [];
-        
-        // Add basic Latin, accents, and punctuation
-        for (let i = 0; i < 0x024F; i++) {
-          if (font.hasGlyphForCodePoint(i)) {
-            glyphs.push(i);
-          }
+        const fontBuffer = await fs.readFile(fontFile);
+        let font: unknown = fontkit.create(fontBuffer);
+        // If it's a collection, use the first font
+        if (Array.isArray((font as { fonts?: unknown[] }).fonts)) {
+          font = (font as { fonts: unknown[] }).fonts[0];
         }
-        
-        // Add any other characters found in the text
-        for (const char of uniqueChars) {
-          const codePoint = char.codePointAt(0);
-          if (codePoint && !glyphs.includes(codePoint) && font.hasGlyphForCodePoint(codePoint)) {
-            glyphs.push(codePoint);
-          }
-        }
-        
+        // Only keep characters that are present in the font
+        const charsToKeep = Array.from(uniqueCharsString)
+          .filter((char) => {
+            return isFontLike(font) && font.hasGlyphForCodePoint(char.codePointAt(0) ?? 0);
+          })
+          .join("");
         // Subset the font
-        const subsetBuffer = subset(font, glyphs);
-        await fs.writeFile(fontFile, subsetBuffer);
-        
+        const subsetBuffer = await subsetFont(fontBuffer, charsToKeep);
+        const originalSize = fontBuffer.length;
         const newSize = subsetBuffer.length;
-        console.log(`Subset font ${path.basename(fontFile)}: ${formatBytes(originalSize)} → ${formatBytes(newSize)} (${Math.round((newSize/originalSize)*100)}%)`);
-        */
+        await fs.writeFile(fontFile, subsetBuffer);
+        console.log(
+          `Subset font ${path.basename(fontFile)}: ${formatBytes(originalSize)} → ${formatBytes(newSize)} (${Math.round((1 - newSize / originalSize) * 100)}% smaller)`
+        );
       } catch (error) {
         console.warn(
           `Skipping font ${path.basename(fontFile)}: ${error instanceof Error ? error.message : String(error)}`
         );
       }
     }
-
-    console.log("To implement actual font subsetting, add these dependencies:");
-    console.log("npm install fontkit subset-font");
-    console.log("And uncomment the implementation code in font-processor.ts");
   } catch (error) {
     throw new Error(
       `Failed to subset fonts: ${error instanceof Error ? error.message : String(error)}`

@@ -7,6 +7,9 @@ import type { Args } from "./types.js";
 import { subsetFonts } from "./processors/font-processor.js";
 import { convertPngToJpeg } from "./processors/image-converter.js";
 import { minifyJavaScript } from "./processors/js-processor.js";
+import { optimizeSVGs } from "./processors/svg-optimizer.js";
+import { downscaleImages } from "./processors/image-downscale.js";
+import { addLazyLoadingToImages } from "./processors/lazy-img.js";
 
 /**
  * Main function to optimize an EPUB file
@@ -45,19 +48,31 @@ async function optimizeEPUB(): Promise<{ success: boolean; input: string; output
     await convertPngToJpeg(args.temp, args.jpgQuality);
     console.log("🖼️  Converted PNG to JPEG");
 
-    // 5. Optimize images
+    // 5. Optimize SVGs
+    await optimizeSVGs(args.temp);
+    console.log("🖼️  Optimized SVG files");
+
+    // 6. Downscale large images
+    await downscaleImages(args.temp, 1600);
+    console.log("🖼️  Downscaled large images");
+
+    // 7. Optimize images
     await optimizeImages(args.temp);
     console.log("🖼️  Optimized image files");
 
-    // 6. Subset fonts
+    // 8. Add lazy loading to images
+    await addLazyLoadingToImages(args.temp);
+    console.log("🖼️  Added lazy loading to images");
+
+    // 9. Subset fonts
     await subsetFonts(args.temp);
     console.log("🔤 Subset fonts");
 
-    // 7. Recompress as EPUB
+    // 10. Recompress as EPUB
     await compressEPUB(args.output, args.temp);
     console.log(`✅ Created optimized EPUB: ${args.output}`);
 
-    // 8. Clean up temporary files if needed
+    // 11. Clean up temporary files if needed
     if (args.clean) {
       await fs.remove(args.temp);
       console.log(`🧹 Removed temporary directory: ${args.temp}`);
