@@ -64,8 +64,8 @@ try {
   console.log("Running fix scripts");
   runCommand("ts-node scripts/fix/index.ts");
 
-  console.log("Running OPF update script");
-  runCommand("ts-node scripts/opf/update-opf.ts");
+  console.log("Running structure update scripts");
+  runCommand("ts-node scripts/ops/update-structure.ts");
 
   console.log(`Creating EPUB with arguments: ${args}`);
   runCommand(`ts-node scripts/create-epub.ts ${args}`);
