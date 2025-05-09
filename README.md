@@ -323,7 +323,6 @@ This project uses the following dependencies:
 
 ### Key npm Packages
 
-- **archiver** - For creating compressed archives
 - **cheerio** - For robust HTML/XHTML DOM manipulation
 - **clean-css** - For CSS minification
 - **fs-extra** - Enhanced file system operations
