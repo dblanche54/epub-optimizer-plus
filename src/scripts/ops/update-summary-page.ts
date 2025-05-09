@@ -23,7 +23,7 @@ try {
 
   // Read and parse summary file
   const content = fs.readFileSync(summaryFile, "utf8");
-  const $ = cheerio.load(content, { xmlMode: true, decodeEntities: false });
+  const $ = cheerio.load(content, { xmlMode: true });
 
   // Remove the 'Sommaire' link (self-reference)
   $('a[href="chapter-2.xhtml"]').parent().remove();

@@ -19,7 +19,7 @@ try {
 
   // Read and parse OPF file
   const content = fs.readFileSync(opfFile, "utf8");
-  const $ = cheerio.load(content, { xmlMode: true, decodeEntities: false });
+  const $ = cheerio.load(content, { xmlMode: true });
 
   // Find and update cover image item
   const coverImageItem = $('item[id="cover-image"]');

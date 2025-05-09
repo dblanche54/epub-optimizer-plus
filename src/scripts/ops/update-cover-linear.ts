@@ -22,7 +22,7 @@ try {
 
   // Read and parse OPF file
   const content = fs.readFileSync(opfFile, "utf8");
-  const $ = cheerio.load(content, { xmlMode: true, decodeEntities: false });
+  const $ = cheerio.load(content, { xmlMode: true });
 
   // Find cover reference in spine
   const coverRef = $('itemref[idref="cover"]');

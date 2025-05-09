@@ -24,7 +24,7 @@ function fixXml(originalContent: string) {
   $("script").remove();
 
   // Only keep <meta> tags that are direct children of <head>
-  $("meta").each(function (this: cheerio.Element, _: number, el: cheerio.Element) {
+  $("meta").each(function (this: any, _: number, el: any) {
     const parent = $(el).parent();
     if (!parent.is("head")) {
       $(el).remove();
@@ -34,7 +34,7 @@ function fixXml(originalContent: string) {
   // Remove any text nodes that are direct children of <html>
   $("html")
     .contents()
-    .filter(function (this: cheerio.Element) {
+    .filter(function (this: any) {
       return this.type === "text";
     })
     .remove();
@@ -42,7 +42,7 @@ function fixXml(originalContent: string) {
   // Remove any text nodes that are direct children of <body>
   $("body")
     .contents()
-    .filter(function (this: cheerio.Element) {
+    .filter(function (this: any) {
       return this.type === "text" && $(this).text().trim().length > 0;
     })
     .remove();

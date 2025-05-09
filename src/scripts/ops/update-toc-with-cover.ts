@@ -29,7 +29,7 @@ try {
   console.log(`Adding cover to TOC file: ${tocXhtmlFile}`);
 
   let content = fs.readFileSync(tocXhtmlFile, "utf8");
-  let $ = cheerio.load(content, { xmlMode: true, decodeEntities: false });
+  let $ = cheerio.load(content, { xmlMode: true });
 
   // Check if cover is already in the TOC
   const coverLink = $('a[href="cover.xhtml"]');
@@ -61,7 +61,7 @@ try {
   console.log(`Adding cover to NCX file: ${ncxFile}`);
 
   content = fs.readFileSync(ncxFile, "utf8");
-  $ = cheerio.load(content, { xmlMode: true, decodeEntities: false });
+  $ = cheerio.load(content, { xmlMode: true });
 
   // Check if cover is already in the NCX navMap
   const coverNavPoint = $(`navPoint navLabel text:contains("${COVER_LABEL}")`).parent().parent();

@@ -36,7 +36,7 @@
     "sharp": "^0.34.1",
     "subset-font": "^2.4.0",
     "svgo": "^3.3.2",
-    "unzipper": "^0.10.14",
+    "unzipper": "^0.12.3",
     "yargs": "^17.7.2"
   },
   "engines": {
@@ -51,7 +51,6 @@
   ],
   "devDependencies": {
     "@eslint/js": "^9.26.0",
-    "@types/cheerio": "^0.22.35",
     "@types/clean-css": "^4.2.11",
     "@types/fontkit": "^2.0.8",
     "@types/fs-extra": "^11.0.4",
