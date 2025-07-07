@@ -3,6 +3,7 @@ import path from "node:path";
 import sharp from "sharp";
 import * as glob from "glob";
 import * as cheerio from "cheerio";
+import { getOPFPath } from "../utils/epub-utils.js";
 
 /**
  * Convert large PNG files to JPEG for better compression
@@ -117,8 +118,8 @@ async function convertPngToJpeg(epubDir: string, quality = 85): Promise<void> {
           }
 
           // Update OPF file
-          const opfFile = path.join(opsDir, "epb.opf");
-          if (await fs.pathExists(opfFile)) {
+          try {
+            const opfFile = await getOPFPath(epubDir);
             let opfContent = await fs.readFile(opfFile, "utf8");
 
             // Replace PNG with JPEG in OPF
@@ -138,6 +139,11 @@ async function convertPngToJpeg(epubDir: string, quality = 85): Promise<void> {
 
             // Remove the original PNG file since we've replaced all references
             await fs.remove(pngFile);
+          } catch (opfError) {
+            console.warn(
+              `Failed to update OPF file: ${opfError instanceof Error ? opfError.message : String(opfError)}`
+            );
+            // Don't fail the whole process if OPF update fails
           }
         } else {
           // JPEG is larger, keep the PNG
