@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 // import { fileURLToPath } from "node:url"; // Unused, remove
-import { execSync } from "node:child_process";
 import config from "../utils/config.js";
 import { parseArgs, handleError } from "./utils.js";
+import { compressEPUB } from "../processors/archive-processor.js";
 
 // Parse command line arguments
 const argv = parseArgs(true, true);
@@ -27,18 +27,8 @@ if (!fs.existsSync(extractedDir)) {
 console.log("Creating new EPUB...");
 
 try {
-  // Delete existing output EPUB if it exists
-  if (fs.existsSync(outputEpubPath)) {
-    fs.unlinkSync(outputEpubPath);
-  }
-
-  // Step 1: Add mimetype first, uncompressed, no extra fields
-  console.log("Adding mimetype file...");
-  execSync(`cd "${extractedDir}" && zip -X0 "${outputEpubPath}" mimetype`);
-
-  // Step 2: Add the rest, compressed, excluding mimetype
-  console.log("Adding remaining files...");
-  execSync(`cd "${extractedDir}" && zip -Xr9D "${outputEpubPath}" . -x mimetype`);
+  // Use the archive processor to create the EPUB with proper compression
+  await compressEPUB(outputEpubPath, extractedDir);
 
   console.log(`Created optimized EPUB: ${outputEpub}`);
 } catch (error) {
