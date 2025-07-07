@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import fs from "fs-extra";
 import path from "path";
 import os from "node:os";
-import { execSync } from "node:child_process";
 import { optimizeEPUB } from "./index";
 import { parseArguments } from "./cli";
 import type { Args } from "./types";
+import { compressEPUB } from "./processors/archive-processor";
 
 // Mock the CLI module to avoid parsing real argv
 vi.mock("./cli", async (importOriginal) => {
@@ -182,12 +182,7 @@ describe("EPUB Optimization Integration Tests", () => {
   });
 });
 
-// Update the helper to accept an options object
 async function createMinimalEpub(filePath: string, opts: { withImage?: boolean } = {}) {
-  // This is a simplified version that depends on your environment
-  // In a real implementation, you would create a valid EPUB structure and zip it
-  // For testing purposes, we'll create a mock file
-
   const tempStructureDir = path.join(path.dirname(filePath), "temp-epub-structure");
   await fs.ensureDir(tempStructureDir);
 
@@ -244,19 +239,19 @@ async function createMinimalEpub(filePath: string, opts: { withImage?: boolean }
     await fs.writeFile(path.join(tempStructureDir, "image.jpg"), testImageBuffer);
   }
 
-  // Use the system ZIP command to create the EPUB (if available)
   try {
-    // Create EPUB archive
-    const createZipCmd = `cd "${tempStructureDir}" && zip -X0 "${filePath}" mimetype && zip -Xr9D "${filePath}" . -x mimetype`;
-    execSync(createZipCmd);
+    await compressEPUB(filePath, tempStructureDir);
 
     // Cleanup temp structure
     await fs.remove(tempStructureDir);
   } catch (error) {
-    // Fallback if zip command fails or isn't available
-    console.error("Failed to create test EPUB using zip command:", error);
+    // Fallback if compressEPUB fails
+    console.error("Failed to create test EPUB using compressEPUB:", error);
 
     // Just create a dummy file so tests can proceed
     await fs.writeFile(filePath, "dummy epub content");
+
+    // Cleanup temp structure
+    await fs.remove(tempStructureDir);
   }
 }

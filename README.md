@@ -64,7 +64,8 @@ pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
 - **SVG optimization** (minifies SVG files using SVGO)
 - **Image downscaling** (optionally resizes large images to a max dimension for e-reader compatibility)
 - **Lazy loading for images** (adds `loading="lazy"` to all `<img>` tags in XHTML for EPUB3 readers)
-- Archive recompression (more efficient zip packaging)
+- **Cross-platform archive processing** (pure JavaScript implementation with no external dependencies)
+- Archive recompression (EPUB-compliant ZIP packaging with proper compression settings)
 - EPUB validation against the EPUB specification
 - XML/XHTML validation fixing (automatically repairs common validation issues)
 - Modular fix scripts for EPUB and OPF structure
@@ -329,6 +330,7 @@ This project uses the following dependencies:
 - **html-minifier-terser** - For HTML minification
 - **sharp** - For image optimization (JPEG, PNG, WebP, GIF, AVIF, SVG)
 - **unzipper** - For extracting EPUB files
+- **yazl** - For cross-platform EPUB archive creation (pure JavaScript ZIP implementation)
 - **yargs** - For command-line argument parsing
 
 ### Development Dependencies
