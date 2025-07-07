@@ -11,9 +11,6 @@ const outputEpub = path.join(tempDir, "output.epub");
 
 // Create a minimal EPUB structure
 async function createMockEpub(filePath: string): Promise<void> {
-  // Create a simple EPUB-like ZIP file for testing
-  const { execSync } = await import("node:child_process");
-
   // Create the directory structure
   await fs.ensureDir(sampleEpubDir);
 
@@ -63,10 +60,9 @@ async function createMockEpub(filePath: string): Promise<void> {
     </html>`
   );
 
-  // Zip the directory
+  // Compress the directory
   try {
-    execSync(`cd "${sampleEpubDir}" && zip -X0 "${filePath}" mimetype`);
-    execSync(`cd "${sampleEpubDir}" && zip -Xr9D "${filePath}" . -x mimetype`);
+    await compressEPUB(filePath, sampleEpubDir);
   } catch (error) {
     console.error("Error creating mock EPUB:", error);
     throw error;
@@ -111,20 +107,26 @@ describe("Archive Processor", () => {
     await fs.ensureDir(extractDir);
     await fs.writeFile(path.join(extractDir, "mimetype"), "application/epub+zip");
 
-    try {
-      // Compress it
-      const result = await compressEPUB(outputEpub, extractDir);
+    // Create a minimal META-INF structure for a more realistic test
+    await fs.ensureDir(path.join(extractDir, "META-INF"));
+    await fs.writeFile(
+      path.join(extractDir, "META-INF", "container.xml"),
+      `<?xml version="1.0"?>
+      <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+        <rootfiles>
+          <rootfile full-path="content.opf" media-type="application/oebps-package+xml"/>
+        </rootfiles>
+      </container>`
+    );
 
-      // Verify
-      expect(result).toBe(true);
-      expect(await fs.pathExists(outputEpub)).toBe(true);
+    // Compress it using our yazl implementation
+    const result = await compressEPUB(outputEpub, extractDir);
 
-      const stats = await fs.stat(outputEpub);
-      expect(stats.size).toBeGreaterThan(0);
-    } catch (error) {
-      // Skip this test if the command fails (likely due to zip not being available in test environment)
-      console.warn("Skipping compress test - zip command may not be available:", error);
-      expect(true).toBe(true); // Always pass
-    }
+    // Verify
+    expect(result).toBe(true);
+    expect(await fs.pathExists(outputEpub)).toBe(true);
+
+    const stats = await fs.stat(outputEpub);
+    expect(stats.size).toBeGreaterThan(0);
   });
 });
