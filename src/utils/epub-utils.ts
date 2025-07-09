@@ -17,54 +17,97 @@ export async function getOPFPath(epubDir: string): Promise<string> {
   }
 
   try {
-    const content = await fs.readFile(containerPath, "utf8");
+    const content = await fs.readFile(containerPath, "utf-8");
     const $ = cheerio.load(content, { xmlMode: true });
 
-    const opfPath = $("rootfile").attr("full-path");
+    const rootfile = $("rootfile").first();
+    const fullPath = rootfile.attr("full-path");
 
-    if (!opfPath) {
-      throw new Error("OPF path not found in container.xml rootfile element");
+    if (!fullPath) {
+      throw new Error("No OPF path found in container.xml");
     }
 
-    const fullOpfPath = path.join(epubDir, opfPath);
+    const opfPath = path.join(epubDir, fullPath);
 
-    // Verify the OPF file actually exists
-    if (!(await fs.pathExists(fullOpfPath))) {
-      throw new Error(`OPF file not found at path: ${fullOpfPath}`);
+    if (!(await fs.pathExists(opfPath))) {
+      throw new Error(`OPF file not found: ${opfPath}`);
     }
 
-    return fullOpfPath;
+    return opfPath;
   } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(`Failed to parse container.xml: ${error.message}`);
-    }
-    throw new Error("Unknown error parsing container.xml");
+    throw new Error(`Failed to parse container.xml: ${error}`);
   }
 }
 
 /**
- * Gets the OPS directory path (common EPUB content directory)
- * Falls back to the EPUB root if OPS doesn't exist
+ * Determines the content directory used by the EPUB
+ * Checks for standard directory conventions: OPS (modern) and OEBPS (legacy)
  * @param epubDir Path to the extracted EPUB directory
- * @returns Path to the content directory
+ * @returns The content directory name (e.g., "OPS", "OEBPS") or empty string if content is in root
  */
 export async function getContentDir(epubDir: string): Promise<string> {
-  const opsDir = path.join(epubDir, "OPS");
+  // Standard EPUB content directory conventions
+  const standardDirs = ["OPS", "OEBPS"];
 
-  if (await fs.pathExists(opsDir)) {
-    return opsDir;
+  // Check each standard directory
+  for (const dir of standardDirs) {
+    const dirPath = path.join(epubDir, dir);
+    if (await fs.pathExists(dirPath)) {
+      try {
+        const stat = await fs.stat(dirPath);
+        if (stat && stat.isDirectory()) {
+          return dir;
+        }
+      } catch {
+        // If stat fails, continue to next directory
+        continue;
+      }
+    }
   }
 
-  // Some EPUBs don't use OPS directory, content might be in root
-  return epubDir;
+  // Fallback: try to detect from OPF location
+  try {
+    const opfPath = await getOPFPath(epubDir);
+    const opfDir = path.dirname(path.relative(epubDir, opfPath));
+
+    // If OPF is in root, return empty string
+    if (opfDir === "." || opfDir === "") {
+      return "";
+    }
+
+    // Return the directory containing the OPF
+    return opfDir;
+  } catch {
+    // If all else fails, assume content is in root
+    return "";
+  }
 }
 
 /**
- * Helper to safely read and parse an OPF file
- * @param opfPath Full path to the OPF file
- * @returns Cheerio instance with parsed OPF content
+ * Gets the full path to the content directory
+ * @param epubDir Path to the extracted EPUB directory
+ * @returns Full path to the content directory
+ */
+export async function getContentPath(epubDir: string): Promise<string> {
+  const contentDir = await getContentDir(epubDir);
+  return contentDir ? path.join(epubDir, contentDir) : epubDir;
+}
+
+/**
+ * Safely parses an OPF file with error handling
+ * @param opfPath Path to the OPF file
+ * @returns Cheerio document object for the OPF file
+ * @throws Error if OPF file cannot be read or parsed
  */
 export async function parseOPF(opfPath: string): Promise<cheerio.CheerioAPI> {
-  const content = await fs.readFile(opfPath, "utf8");
-  return cheerio.load(content, { xmlMode: true });
+  if (!(await fs.pathExists(opfPath))) {
+    throw new Error(`OPF file not found: ${opfPath}`);
+  }
+
+  try {
+    const content = await fs.readFile(opfPath, "utf-8");
+    return cheerio.load(content, { xmlMode: true });
+  } catch (error) {
+    throw new Error(`Failed to parse OPF file ${opfPath}: ${error}`);
+  }
 }

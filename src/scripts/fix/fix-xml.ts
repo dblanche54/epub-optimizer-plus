@@ -51,40 +51,48 @@ function fixXml(originalContent: string) {
   return $.xml();
 }
 
-// Get the extraction directory from config
-const projectRoot = process.cwd();
-const extractedDir = path.join(projectRoot, config.tempDir);
-const opsDir = path.join(extractedDir, "OPS");
+import { getContentPath } from "../../utils/epub-utils.js";
 
-// Verify the directory exists
-if (!fs.existsSync(extractedDir)) {
-  console.error(`Error: Directory ${extractedDir} does not exist.`);
-  console.error("Please run the optimization script first to extract the EPUB.");
-  process.exit(1);
-}
+// Main async function to handle the process
+async function main() {
+  // Get the extraction directory from config
+  const projectRoot = process.cwd();
+  const extractedDir = path.join(projectRoot, config.tempDir);
 
-if (!fs.existsSync(opsDir)) {
-  console.error(`Error: Directory ${opsDir} does not exist.`);
-  console.error("Please make sure the extracted EPUB has an OPS directory.");
-  process.exit(1);
-}
-
-// Get all XHTML files
-const xhtmlFiles = fs
-  .readdirSync(opsDir)
-  .filter((file) => file.endsWith(".xhtml"))
-  .map((file) => path.join(opsDir, file));
-
-// Fix each file
-for (const file of xhtmlFiles) {
-  try {
-    console.log(`Processing ${file}`);
-    const content = fs.readFileSync(file, "utf8");
-    const fixed = fixXml(content);
-    fs.writeFileSync(file, fixed);
-  } catch (error) {
-    console.error(`Error processing ${file}:`, error);
+  // Verify the directory exists
+  if (!fs.existsSync(extractedDir)) {
+    console.error(`Error: Directory ${extractedDir} does not exist.`);
+    console.error("Please run the optimization script first to extract the EPUB.");
+    process.exit(1);
   }
+
+  const contentDir = await getContentPath(extractedDir);
+  if (!fs.existsSync(contentDir)) {
+    console.error(`Error: Content directory ${contentDir} does not exist.`);
+    console.error("Please make sure the extracted EPUB has a content directory (OPS or OEBPS).");
+    process.exit(1);
+  }
+
+  // Get all XHTML files
+  const xhtmlFiles = fs
+    .readdirSync(contentDir)
+    .filter((file) => file.endsWith(".xhtml"))
+    .map((file) => path.join(contentDir, file));
+
+  // Fix each file
+  for (const file of xhtmlFiles) {
+    try {
+      console.log(`Processing ${file}`);
+      const content = fs.readFileSync(file, "utf8");
+      const fixed = fixXml(content);
+      fs.writeFileSync(file, fixed);
+    } catch (error) {
+      console.error(`Error processing ${file}:`, error);
+    }
+  }
+
+  console.log("All files processed.");
 }
 
-console.log("All files processed.");
+// Use void operator to explicitly mark the promise as intentionally not awaited
+void main();

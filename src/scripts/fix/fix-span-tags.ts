@@ -5,11 +5,11 @@ import fs from "fs-extra";
 import path from "node:path";
 import * as cheerio from "cheerio";
 import config from "../../utils/config.js";
+import { getContentPath } from "../../utils/epub-utils.js";
 
 // Use the project root directory for file paths
 const projectRoot = process.cwd();
 const extractedDir = path.join(projectRoot, config.tempDir);
-const opsDir = path.join(extractedDir, "OPS");
 
 async function main() {
   // Verify the directories exist
@@ -19,16 +19,17 @@ async function main() {
     process.exit(1);
   }
 
-  if (!(await fs.pathExists(opsDir))) {
-    console.error(`Error: Directory ${opsDir} does not exist.`);
-    console.error("Please make sure the extracted EPUB has an OPS directory.");
+  const contentDir = await getContentPath(extractedDir);
+  if (!(await fs.pathExists(contentDir))) {
+    console.error(`Error: Content directory ${contentDir} does not exist.`);
+    console.error("Please make sure the extracted EPUB has a content directory (OPS or OEBPS).");
     process.exit(1);
   }
 
   // Get all chapter XHTML files
-  const files = (await fs.readdir(opsDir))
+  const files = (await fs.readdir(contentDir))
     .filter((file) => file.endsWith(".xhtml"))
-    .map((file) => path.join(opsDir, file));
+    .map((file) => path.join(contentDir, file));
 
   for (const file of files) {
     await fixFile(file);

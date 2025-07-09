@@ -3,15 +3,16 @@ import path from "node:path";
 import * as cheerio from "cheerio";
 import config from "../../utils/config.js";
 import { getCoverLabel } from "../../utils/i18n.js";
+import { getContentPath } from "../../utils/epub-utils.js";
 
 // Get the localized cover label
 const COVER_LABEL = getCoverLabel();
 
 // Define file paths
 const extractedDir = path.join(process.cwd(), config.tempDir);
-const opsDir = path.join(extractedDir, "OPS");
-const tocXhtmlFile = path.join(opsDir, "toc.xhtml");
-const ncxFile = path.join(opsDir, "epb.ncx");
+const contentDir = await getContentPath(extractedDir);
+const tocXhtmlFile = path.join(contentDir, "toc.xhtml");
+const ncxFile = path.join(contentDir, "epb.ncx");
 
 // Check if files exist
 if (!fs.existsSync(tocXhtmlFile)) {

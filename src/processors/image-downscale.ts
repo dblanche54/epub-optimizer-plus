@@ -2,6 +2,7 @@ import fs from "fs-extra";
 import path from "node:path";
 import sharp from "sharp";
 import * as glob from "glob";
+import { getContentPath } from "../utils/epub-utils.js";
 
 /**
  * Downscale large images in the EPUB images directory
@@ -10,8 +11,8 @@ import * as glob from "glob";
  */
 export async function downscaleImages(epubDir: string, maxDim = 1600): Promise<void> {
   try {
-    const opsDir = path.join(epubDir, "OPS");
-    const imagesDir = path.join(opsDir, "images");
+    const contentDir = await getContentPath(epubDir);
+    const imagesDir = path.join(contentDir, "images");
     if (!(await fs.pathExists(imagesDir))) {
       console.log("No images directory found, skipping image downscaling");
       return;
