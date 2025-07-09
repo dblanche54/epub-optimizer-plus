@@ -4,6 +4,7 @@ import * as cheerio from "cheerio";
 import * as glob from "glob";
 import * as fontkit from "fontkit";
 import subsetFont from "subset-font";
+import { getContentPath } from "../utils/epub-utils.js";
 
 /**
  * Subset font files to include only characters used in the EPUB content
@@ -15,22 +16,22 @@ async function subsetFonts(epubDir: string): Promise<void> {
   try {
     console.log("Subsetting fonts to reduce file size...");
 
-    // Get OPS directory (where content is stored)
-    const opsDir = path.join(epubDir, "OPS");
-    if (!(await fs.pathExists(opsDir))) {
-      console.log("No OPS directory found, skipping font subsetting");
+    // Get content directory (OPS, OEBPS, or root)
+    const contentDir = await getContentPath(epubDir);
+    if (!(await fs.pathExists(contentDir))) {
+      console.log("Content directory not found, skipping font subsetting");
       return;
     }
 
     // Check if fonts directory exists
-    const fontsDir = path.join(opsDir, "fonts");
+    const fontsDir = path.join(contentDir, "fonts");
     if (!(await fs.pathExists(fontsDir))) {
       console.log("No fonts directory found, skipping font subsetting");
       return;
     }
 
     // Get all XHTML files
-    const xhtmlFiles = glob.sync(path.join(opsDir, "*.xhtml"));
+    const xhtmlFiles = glob.sync(path.join(contentDir, "*.xhtml"));
     if (xhtmlFiles.length === 0) {
       console.log("No XHTML files found, skipping font subsetting");
       return;

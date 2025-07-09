@@ -6,6 +6,7 @@ import { optimizeEPUB } from "./index";
 import { parseArguments } from "./cli";
 import type { Args } from "./types";
 import { compressEPUB } from "./processors/archive-processor";
+import { getContentPath } from "./utils/epub-utils";
 
 // Mock the CLI module to avoid parsing real argv
 vi.mock("./cli", async (importOriginal) => {
@@ -85,23 +86,23 @@ describe("EPUB Optimization Integration Tests", () => {
       .pipe(unzipper.Extract({ path: unzipDir }))
       .promise();
     // Check for SVG minification (if any SVGs present)
-    const opsImages = path.join(unzipDir, "OPS", "images");
-    if (await fs.pathExists(opsImages)) {
-      const files = await fs.readdir(opsImages);
+    const contentDir = await getContentPath(unzipDir);
+    const contentImages = path.join(contentDir, "images");
+    if (await fs.pathExists(contentImages)) {
+      const files = await fs.readdir(contentImages);
       for (const file of files) {
         if (file.endsWith(".svg")) {
-          const svgContent = await fs.readFile(path.join(opsImages, file), "utf8");
+          const svgContent = await fs.readFile(path.join(contentImages, file), "utf8");
           expect(svgContent).not.toContain("<!--"); // Comments should be removed
         }
       }
     }
     // Check for loading="lazy" in XHTML files
-    const opsDir = path.join(unzipDir, "OPS");
-    if (await fs.pathExists(opsDir)) {
-      const files = await fs.readdir(opsDir);
+    if (await fs.pathExists(contentDir)) {
+      const files = await fs.readdir(contentDir);
       for (const file of files) {
         if (file.endsWith(".xhtml")) {
-          const xhtml = await fs.readFile(path.join(opsDir, file), "utf8");
+          const xhtml = await fs.readFile(path.join(contentDir, file), "utf8");
           if (xhtml.includes("<img")) {
             expect(xhtml).toContain('loading="lazy"');
           }

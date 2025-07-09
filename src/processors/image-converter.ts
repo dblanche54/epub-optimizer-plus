@@ -3,6 +3,7 @@ import path from "node:path";
 import sharp from "sharp";
 import * as glob from "glob";
 import * as cheerio from "cheerio";
+import { getOPFPath, getContentPath } from "../utils/epub-utils.js";
 
 /**
  * Convert large PNG files to JPEG for better compression
@@ -15,15 +16,15 @@ async function convertPngToJpeg(epubDir: string, quality = 85): Promise<void> {
   try {
     console.log("Converting large PNG files to JPEG for better compression...");
 
-    // Get OPS directory (where content is stored)
-    const opsDir = path.join(epubDir, "OPS");
-    if (!(await fs.pathExists(opsDir))) {
-      console.log("No OPS directory found, skipping PNG to JPEG conversion");
+    // Get content directory (OPS, OEBPS, or root)
+    const contentDir = await getContentPath(epubDir);
+    if (!(await fs.pathExists(contentDir))) {
+      console.log("Content directory not found, skipping PNG to JPEG conversion");
       return;
     }
 
     // Check if images directory exists
-    const imagesDir = path.join(opsDir, "images");
+    const imagesDir = path.join(contentDir, "images");
     if (!(await fs.pathExists(imagesDir))) {
       console.log("No images directory found, skipping PNG to JPEG conversion");
       return;
@@ -88,7 +89,7 @@ async function convertPngToJpeg(epubDir: string, quality = 85): Promise<void> {
           );
 
           // Now update references in all XHTML files
-          const xhtmlFiles = glob.sync(path.join(opsDir, "*.xhtml"));
+          const xhtmlFiles = glob.sync(path.join(contentDir, "*.xhtml"));
           const pngBasename = path.basename(pngFile);
           const jpegBasename = path.basename(jpegFile);
 
@@ -117,8 +118,8 @@ async function convertPngToJpeg(epubDir: string, quality = 85): Promise<void> {
           }
 
           // Update OPF file
-          const opfFile = path.join(opsDir, "epb.opf");
-          if (await fs.pathExists(opfFile)) {
+          try {
+            const opfFile = await getOPFPath(epubDir);
             let opfContent = await fs.readFile(opfFile, "utf8");
 
             // Replace PNG with JPEG in OPF
@@ -138,6 +139,11 @@ async function convertPngToJpeg(epubDir: string, quality = 85): Promise<void> {
 
             // Remove the original PNG file since we've replaced all references
             await fs.remove(pngFile);
+          } catch (opfError) {
+            console.warn(
+              `Failed to update OPF file: ${opfError instanceof Error ? opfError.message : String(opfError)}`
+            );
+            // Don't fail the whole process if OPF update fails
           }
         } else {
           // JPEG is larger, keep the PNG

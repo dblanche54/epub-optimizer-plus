@@ -55,6 +55,7 @@ pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
 
 ## Features
 
+- **Supports both "OPS" (modern) and "OEBPS" (legacy) EPUB content directories (auto-detected)**
 - HTML/XHTML minification (removes whitespace, comments, and unnecessary code)
 - CSS optimization (minifies and combines rules)
 - Image compression (JPEG, PNG, WebP, GIF, AVIF, SVG optimization without significant quality loss)
