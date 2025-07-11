@@ -1,30 +1,28 @@
 FROM node:23-slim
 
-# Install Java 17 and download tools
+# Install Java and build tools
 RUN apt-get update && apt-get install -y \
     openjdk-17-jre-headless \
     wget \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pnpm globally
+# Install pnpm
 RUN npm install -g pnpm@9.5.0
 
 WORKDIR /app
 
-# Copy package files first (for better Docker layer caching)
+# Copy package files and install dependencies
 COPY package.json pnpm-lock.yaml ./
-
-# Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
+# Copy source code and build
 COPY . .
 
 # Build the project
 RUN pnpm build
 
-# Download and setup EPUBCheck 5.2.1, then clean up
+# Download and setup EPUBCheck, then clean up
 RUN wget https://github.com/w3c/epubcheck/releases/download/v5.2.1/epubcheck-5.2.1.zip \
     && unzip epubcheck-5.2.1.zip \
     && mv epubcheck-5.2.1 epubcheck \
