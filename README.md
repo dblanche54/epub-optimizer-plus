@@ -2,6 +2,15 @@
 
 A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and recompressing the archive. This tool can significantly reduce EPUB file sizes while maintaining compatibility with e-readers and ensuring EPUB specification compliance.
 
+## Why Use EPUB Optimizer?
+
+- ✅ **Dramatically reduces file size** - Typically 70-90% smaller files
+- ✅ **Maintains full compatibility** - Works with all major e-readers (Kindle, Apple Books, etc.)
+- ✅ **Preserves quality** - Smart optimization without visual degradation
+- ✅ **Supports all EPUB types** - Both modern (OPS) and legacy (OEBPS) formats
+- ✅ **Zero setup with Docker** - No need to install Node.js, Java, or other dependencies
+- ✅ **Battle-tested** - Used for real book publishing workflows
+
 ![EPUB Optimizer Terminal Output](assets/epub-optimizer-demo.png)
 
 ## Table of Contents
@@ -12,10 +21,12 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [EPUBCheck Setup](#epubcheck-setup)
+- [Docker Alternative](#docker-alternative)
 - [Usage](#usage)
   - [Available Scripts](#available-scripts)
   - [Modern Workflow](#modern-workflow)
   - [Command Line Options](#command-line-options)
+  - [Docker Usage](#docker-usage)
 - [Project Structure](#project-structure)
 - [Development Information](#development-information)
   - [Source and Build Separation](#source-and-build-separation)
@@ -26,6 +37,7 @@ A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and re
 - [Minification](#minification)
 - [Modular Fix Scripts](#modular-fix-scripts)
   - [Customizing the Optimization Process](#customizing-the-optimization-process)
+- [Common Issues](#common-issues)
 - [Troubleshooting](#troubleshooting)
 - [Dependencies](#dependencies)
 - [License](#license)
@@ -47,10 +59,25 @@ This script is designed for this workflow (I don't use any other tools), but any
 
 ## Quick Start
 
+> **Note:**
+> For both Docker and traditional usage, place your EPUB file(s) in the project root directory (the same directory as your `package.json` and Dockerfile), or specify the correct path to your file.
+
+**Traditional installation:**
+
 ```bash
 pnpm install
 pnpm build
-pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
+pnpm optimize -i YourBook.epub -o YourBook-optimized.epub
+```
+
+**Or use Docker (no setup required):**
+
+```bash
+git clone https://github.com/kiki-le-singe/epub-optimizer.git
+cd epub-optimizer
+docker build -t epub-optimizer .
+docker run --rm -v $(pwd):/epub-files epub-optimizer \
+  -i /epub-files/YourBook.epub -o /epub-files/YourBook-optimized.epub
 ```
 
 ## Features
@@ -81,6 +108,8 @@ pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
 
 ## Requirements
 
+**Only required for traditional installation** (skip if using Docker):
+
 - Node.js 14 or higher (my version: v23.11.0)
 - Java Runtime Environment (JRE) 1.7 or higher (my version: openjdk 23.0.2)
 - pnpm (my version: 9.5.0)
@@ -110,6 +139,43 @@ This tool requires EPUBCheck to validate EPUB files. Follow these steps:
 2. Extract the downloaded zip file
 3. Copy the extracted `epubcheck-x.x.x` folder (where x.x.x is the version) to the root of this project
 4. Make sure the folder is named `epubcheck` to match the path in `epubcheckPath` in src/utils/config.ts
+
+## Docker Alternative
+
+**Docker Requirement:**
+You must have [Docker installed](https://docs.docker.com/get-docker/) on your system to use the Docker method.
+
+Docker provides a containerized environment with all dependencies pre-installed, making it easier to run the EPUB optimizer without complex setup.
+
+### Docker Requirements
+
+- Docker installed on your system
+
+### Docker Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/kiki-le-singe/epub-optimizer.git
+cd epub-optimizer
+
+# Build the Docker image (includes all dependencies)
+docker build -t epub-optimizer .
+```
+
+### Docker Quick Start
+
+```bash
+# Optimize an EPUB file
+docker run --rm -v $(pwd):/epub-files epub-optimizer \
+  -i /epub-files/your-book.epub -o /epub-files/your-book-optimized.epub
+```
+
+**Benefits of Docker approach:**
+
+- ✅ No need to install Node.js, Java, or pnpm
+- ✅ Works consistently across all platforms (Windows, Mac, Linux)
+- ✅ Includes EPUBCheck automatically
+- ✅ Guaranteed to work with tested dependency versions
 
 ## Usage
 
@@ -144,7 +210,7 @@ pnpm build
 pnpm build:prod
 
 # Then run the optimizer
-pnpm optimize -i YourBook.epub -o YourBook_optimized.epub
+pnpm optimize -i YourBook.epub -o YourBook-optimized.epub
 
 # Run tests
 pnpm test
@@ -181,6 +247,34 @@ Examples:
 > - `pnpm cleanup` - Manually removes the temporary directory (temp_epub)
 
 > **Important Note:** This tool is designed to work with files in the project directory. Using absolute paths or paths outside the project directory may cause issues.
+
+### Docker Usage
+
+If you're using the Docker alternative, here are additional usage examples:
+
+**Basic Docker optimization:**
+
+```bash
+docker run --rm -v $(pwd):/epub-files epub-optimizer \
+  -i /epub-files/book.epub -o /epub-files/book-optimized.epub
+```
+
+**Docker with custom image quality:**
+
+```bash
+docker run --rm -v $(pwd):/epub-files epub-optimizer \
+  -i /epub-files/book.epub -o /epub-files/book-optimized.epub \
+  --jpg-quality 50 --png-quality 0.4
+```
+
+**Docker command breakdown:**
+
+- `docker run --rm` - Run container and remove it when done
+- `-v $(pwd):/epub-files` - Mount current directory to `/epub-files` in container
+- `epub-optimizer` - The Docker image name
+- Arguments after the image name are passed to the EPUB optimizer
+
+> **Docker Note:** Temporary files are automatically handled inside the container and don't affect your host system.
 
 ## Project Structure
 
@@ -308,6 +402,50 @@ If you don't need all the features I've implemented for my own workflow, you can
 - **Example: Disable specific XML/HTML fixes** - Comment out relevant script calls in `src/scripts/fix/index.ts`
 
 After making any customizations, rebuild the project with `pnpm build` to apply your changes.
+
+## Common Issues
+
+### Docker Issues
+
+**"docker: command not found"**
+
+- Install Docker first: [Download Docker](https://docs.docker.com/get-docker/)
+- Make sure Docker Desktop is running
+
+**"Permission denied" or file access errors**
+
+- Ensure your EPUB file is in the project root or mounted directory
+- Check file permissions (especially on Linux/Mac)
+
+### Traditional Installation Issues
+
+**"Java not found" or EPUBCheck errors**
+
+- Install Java JRE 1.7+ (see [Requirements](#requirements))
+- Download EPUBCheck manually (see [EPUBCheck Setup](#epubcheck-setup))
+
+**"pnpm command not found"**
+
+- Install pnpm: `npm install -g pnpm`
+- Or use npm instead: replace `pnpm` with `npm` in commands
+
+**Build errors**
+
+- Run `pnpm build` before using `pnpm optimize`
+- Try `pnpm install` if dependencies are missing
+
+### File Issues
+
+**"Input file not found"**
+
+- Check your file path and name (case-sensitive)
+- Make sure the EPUB file is in the correct directory
+- Use relative paths from the project root
+
+**"Output file permission errors"**
+
+- Check write permissions in the output directory
+- Try a different output filename
 
 ## Troubleshooting
 
