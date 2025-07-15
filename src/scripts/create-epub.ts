@@ -14,7 +14,11 @@ const outputEpub = argv.output || config.outputEPUB;
 // Use the project root directory for file paths (not the compiled dist location)
 const projectRoot = process.cwd();
 const extractedDir = path.join(projectRoot, config.tempDir);
-const outputEpubPath = path.join(projectRoot, outputEpub);
+
+// If output path is absolute, use it as-is; otherwise join with project root
+const outputEpubPath = path.isAbsolute(outputEpub)
+  ? outputEpub
+  : path.join(projectRoot, outputEpub);
 
 // Verify the directory exists
 if (!fs.existsSync(extractedDir)) {
