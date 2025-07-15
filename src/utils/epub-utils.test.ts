@@ -1,7 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import fs from "fs-extra";
 import path from "node:path";
-import { getOPFPath, getContentDir, getContentPath, parseOPF } from "./epub-utils";
+import {
+  getOPFPath,
+  getContentDir,
+  getContentPath,
+  parseOPF,
+  getTOCFiles,
+  getEPUB3NavPath,
+  getEPUB2NCXPath,
+} from "./epub-utils";
 
 describe("epub-utils", () => {
   const testDir = path.join(__dirname, "..", "..", "test-temp");
@@ -186,6 +194,206 @@ describe("epub-utils", () => {
       await fs.writeFile(opfPath, "this is not xml at all { invalid }");
 
       await expect(parseOPF(opfPath)).rejects.toThrow("Failed to parse OPF file");
+    });
+  });
+
+  describe("getTOCFiles", () => {
+    it("should find both EPUB3 nav and EPUB2 NCX files", async () => {
+      await createContainerXml("OPS/content.opf");
+
+      // Create OPF with both nav and NCX references
+      const fullOPFPath = path.join(epubDir, "OPS", "content.opf");
+      await fs.ensureDir(path.dirname(fullOPFPath));
+      const opfContent = `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="pub-id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="pub-id">test-book</dc:identifier>
+    <dc:title>Test Book</dc:title>
+    <dc:language>en</dc:language>
+    <meta property="dcterms:modified">2023-01-01T00:00:00Z</meta>
+  </metadata>
+  <manifest>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+  </manifest>
+  <spine>
+    <itemref idref="nav"/>
+  </spine>
+</package>`;
+      await fs.writeFile(fullOPFPath, opfContent);
+
+      // Create the actual TOC files
+      const opsDir = path.join(epubDir, "OPS");
+      await fs.writeFile(path.join(opsDir, "nav.xhtml"), "<html><nav>Navigation</nav></html>");
+      await fs.writeFile(
+        path.join(opsDir, "toc.ncx"),
+        `<?xml version="1.0"?><ncx><navMap></navMap></ncx>`
+      );
+
+      const result = await getTOCFiles(epubDir);
+
+      expect(result.epub3Nav).toBe(path.join(opsDir, "nav.xhtml"));
+      expect(result.epub2Ncx).toBe(path.join(opsDir, "toc.ncx"));
+    });
+
+    it("should find only EPUB3 nav file when NCX is missing", async () => {
+      await createContainerXml("OPS/content.opf");
+
+      const fullOPFPath = path.join(epubDir, "OPS", "content.opf");
+      await fs.ensureDir(path.dirname(fullOPFPath));
+      const opfContent = `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="pub-id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="pub-id">test-book</dc:identifier>
+    <dc:title>Test Book</dc:title>
+    <dc:language>en</dc:language>
+    <meta property="dcterms:modified">2023-01-01T00:00:00Z</meta>
+  </metadata>
+  <manifest>
+    <item id="nav" href="navigation.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+  </manifest>
+  <spine>
+    <itemref idref="nav"/>
+  </spine>
+</package>`;
+      await fs.writeFile(fullOPFPath, opfContent);
+
+      // Create only the nav file
+      const opsDir = path.join(epubDir, "OPS");
+      await fs.writeFile(
+        path.join(opsDir, "navigation.xhtml"),
+        "<html><nav>Navigation</nav></html>"
+      );
+
+      const result = await getTOCFiles(epubDir);
+
+      expect(result.epub3Nav).toBe(path.join(opsDir, "navigation.xhtml"));
+      expect(result.epub2Ncx).toBeUndefined();
+    });
+
+    it("should return empty object when no TOC files are found", async () => {
+      await createContainerXml("content.opf");
+      await createOPF("content.opf");
+
+      const result = await getTOCFiles(epubDir);
+
+      expect(result.epub3Nav).toBeUndefined();
+      expect(result.epub2Ncx).toBeUndefined();
+    });
+
+    it("should handle files referenced in manifest but missing from filesystem", async () => {
+      await createContainerXml("OPS/content.opf");
+
+      const fullOPFPath = path.join(epubDir, "OPS", "content.opf");
+      await fs.ensureDir(path.dirname(fullOPFPath));
+      const opfContent = `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="pub-id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="pub-id">test-book</dc:identifier>
+    <dc:title>Test Book</dc:title>
+    <dc:language>en</dc:language>
+    <meta property="dcterms:modified">2023-01-01T00:00:00Z</meta>
+  </metadata>
+  <manifest>
+    <item id="nav" href="missing-nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item id="ncx" href="missing-toc.ncx" media-type="application/x-dtbncx+xml"/>
+  </manifest>
+  <spine>
+    <itemref idref="nav"/>
+  </spine>
+</package>`;
+      await fs.writeFile(fullOPFPath, opfContent);
+
+      // Don't create the actual files
+
+      const result = await getTOCFiles(epubDir);
+
+      expect(result.epub3Nav).toBeUndefined();
+      expect(result.epub2Ncx).toBeUndefined();
+    });
+  });
+
+  describe("getEPUB3NavPath", () => {
+    it("should return nav path when found", async () => {
+      await createContainerXml("OPS/content.opf");
+
+      const fullOPFPath = path.join(epubDir, "OPS", "content.opf");
+      await fs.ensureDir(path.dirname(fullOPFPath));
+      const opfContent = `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="pub-id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="pub-id">test-book</dc:identifier>
+    <dc:title>Test Book</dc:title>
+    <dc:language>en</dc:language>
+    <meta property="dcterms:modified">2023-01-01T00:00:00Z</meta>
+  </metadata>
+  <manifest>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+  </manifest>
+  <spine>
+    <itemref idref="nav"/>
+  </spine>
+</package>`;
+      await fs.writeFile(fullOPFPath, opfContent);
+
+      const opsDir = path.join(epubDir, "OPS");
+      await fs.writeFile(path.join(opsDir, "nav.xhtml"), "<html><nav>Navigation</nav></html>");
+
+      const result = await getEPUB3NavPath(epubDir);
+
+      expect(result).toBe(path.join(opsDir, "nav.xhtml"));
+    });
+
+    it("should return null when not found", async () => {
+      await createContainerXml("content.opf");
+      await createOPF("content.opf");
+
+      const result = await getEPUB3NavPath(epubDir);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("getEPUB2NCXPath", () => {
+    it("should return NCX path when found", async () => {
+      await createContainerXml("OPS/content.opf");
+
+      const fullOPFPath = path.join(epubDir, "OPS", "content.opf");
+      await fs.ensureDir(path.dirname(fullOPFPath));
+      const opfContent = `<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="pub-id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="pub-id">test-book</dc:identifier>
+    <dc:title>Test Book</dc:title>
+    <dc:language>en</dc:language>
+    <meta property="dcterms:modified">2023-01-01T00:00:00Z</meta>
+  </metadata>
+  <manifest>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+  </manifest>
+  <spine>
+  </spine>
+</package>`;
+      await fs.writeFile(fullOPFPath, opfContent);
+
+      const opsDir = path.join(epubDir, "OPS");
+      await fs.writeFile(
+        path.join(opsDir, "toc.ncx"),
+        `<?xml version="1.0"?><ncx><navMap></navMap></ncx>`
+      );
+
+      const result = await getEPUB2NCXPath(epubDir);
+
+      expect(result).toBe(path.join(opsDir, "toc.ncx"));
+    });
+
+    it("should return null when not found", async () => {
+      await createContainerXml("content.opf");
+      await createOPF("content.opf");
+
+      const result = await getEPUB2NCXPath(epubDir);
+
+      expect(result).toBeNull();
     });
   });
 });
