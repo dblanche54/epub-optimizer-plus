@@ -10,6 +10,7 @@ import { minifyJavaScript } from "./processors/js-processor.js";
 import { optimizeSVGs } from "./processors/svg-optimizer.js";
 import { downscaleImages } from "./processors/image-downscale.js";
 import { addLazyLoadingToImages } from "./processors/lazy-img.js";
+import decodeEntitiesOp from "./scripts/ops/decode-entities.js";
 
 /**
  * Main function to optimize an EPUB file
@@ -35,6 +36,11 @@ async function optimizeEPUB(): Promise<{ success: boolean; input: string; output
     // 1. Extract EPUB file
     await extractEPUB(args.input, args.temp);
     console.log(`📦 Extracted ${args.input} to ${args.temp}`);
+
+    // Remove HTML Encoded Entities
+    await decodeEntitiesOp(args.temp);     // ← new step
+    console.log("Removing HTML Encoded Characters");
+
 
     // 2. Process HTML and CSS files
     await processHTML(args.temp);
