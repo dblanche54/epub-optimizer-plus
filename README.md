@@ -2,6 +2,8 @@
 
 A Node.js utility to optimize EPUB files by compressing HTML, CSS, images and recompressing the archive. This tool can significantly reduce EPUB file sizes while maintaining compatibility with e-readers and ensuring EPUB specification compliance.
 
+- Added HTML Decode Characters for Optimization when reading on the XTEINK x4 Reader
+
 ## Why Use EPUB Optimizer?
 
 - ✅ **Dramatically reduces file size** - Typically 70-90% smaller files
